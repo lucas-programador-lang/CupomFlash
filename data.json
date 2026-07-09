@@ -1,35 +1,25 @@
 [
   {
-    "store": "Nike",
-    "icon": "👟",
-    "category": "moda",
-    "discount": "20% OFF",
-    "desc": "Cupom válido para todo o site da Nike.",
-    "code": "NIKE20",
-    "expiry": "Válido até 30/08/2026",
-    "validUntil": "2026-08-30",
-    "tag": "new"
-  },
-  {
     "store": "Amazon",
     "icon": "📦",
     "category": "eletronicos",
-    "discount": "R$ 50 OFF",
-    "desc": "Em compras acima de R$ 300,00.",
-    "code": "AMZ50",
-    "expiry": "Válido até 15/09/2026",
-    "validUntil": "2026-09-15",
-    "tag": "hot"
+    "discount": "10% OFF",
+    "desc": "Em todo o site de eletrônicos",
+    "code": "TECH10",
+    "expiry": "2026-12-31",
+    "validUntil": "2026-12-31",
+    "tag": "new",
+    "featured": true
   },
   {
-    "store": "Ifood",
-    "icon": "🍔",
-    "category": "alimentacao",
-    "discount": "R$ 15 OFF",
-    "desc": "Para seu primeiro pedido ou reativação.",
-    "code": "IFOOD15",
-    "expiry": "Válido até 01/10/2026",
-    "validUntil": "2026-10-01",
-    "tag": "new"
+    "store": "Nike",
+    "icon": "👟",
+    "category": "moda",
+    "discount": "R$ 50 OFF",
+    "desc": "Nas compras acima de R$ 300",
+    "code": "NIKE50",
+    "expiry": "2026-08-15",
+    "validUntil": "2026-08-15",
+    "tag": "hot"
   }
 ]
