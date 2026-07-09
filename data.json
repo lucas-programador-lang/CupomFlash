@@ -1,12 +1,9 @@
-[
-  {
-    "store": "Teste de Fogo",
-    "icon": "🚀",
-    "category": "moda",
-    "discount": "99% OFF",
-    "desc": "Este é um cupom de teste para verificar se o JSON está funcionando.",
-    "code": "TESTE123",
-    "expiry": "Válido agora",
-    "tag": "hot"
-  }
-]
+{
+  "store": "TechPoint",
+  "icon": "📱",
+  "category": "eletronicos",
+  "discount": "R$150 OFF",
+  "code": "TECH150",
+  "expiry": "Válido até 20/07",
+  "validUntil": "2026-07-20" 
+}
