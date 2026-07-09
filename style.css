@@ -5,8 +5,10 @@
            accent-hot #FF4D6D (destaque/promo)
    Display: Space Grotesk · Body: Inter · Código/Utility: JetBrains Mono
 
-   [REVISÃO PREMIUM] — comentários "// PREMIUM" marcam o que foi
-   adicionado/ajustado. Nenhuma classe, ID ou regra original foi removida.
+   [REVISÃO PREMIUM v1] — "// PREMIUM"    = ajustes de espaçamento/sombra/gradiente
+   [REVISÃO PREMIUM v2] — "// PREMIUM v2" = fundo do hero, grão, gloss, acabamento
+   [BUGFIX] = correções de comportamento (Safari, foco, stacking context)
+   Nenhuma classe, ID ou regra original foi removida.
    ========================================================= */
 
 :root{
@@ -31,6 +33,9 @@
   /* PREMIUM: sombra em duas camadas (ambiente + contato) para profundidade real */
   --shadow-elev: 0 24px 60px -24px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.05);
   --shadow-elev-hover: 0 30px 80px -20px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08);
+
+  /* PREMIUM v2: textura de grão sutil usada globalmente (efeito "produto caro") */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -49,6 +54,19 @@ body{
   line-height:1.5;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
+  position:relative; /* PREMIUM v2: necessário como referência de stacking pro grão abaixo */
+}
+
+/* PREMIUM v2: grão de textura fixo sobre toda a página — sutil, não bloqueia cliques */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  pointer-events:none;
+  opacity:.035;
+  mix-blend-mode:overlay;
+  background-image:var(--grain);
 }
 
 img{max-width:100%;display:block;}
@@ -69,6 +87,20 @@ ul{list-style:none;}
   border-radius:4px;
 }
 
+/* PREMIUM v2: seleção de texto e scrollbar seguindo a identidade da marca */
+::selection{
+  background:var(--accent-flash);
+  color:#161200;
+}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:var(--bg-void);}
+::-webkit-scrollbar-thumb{
+  background:var(--bg-surface-2);
+  border-radius:99px;
+  border:2px solid var(--bg-void);
+}
+::-webkit-scrollbar-thumb:hover{background:var(--border-soft-2);}
+
 /* ---------- Buttons ---------- */
 .btn{
   display:inline-flex;
@@ -83,17 +115,21 @@ ul{list-style:none;}
   cursor:pointer; /* PREMIUM: defensivo, caso o botão não seja um <button> nativo */
 }
 .btn-flash{
-  background:var(--accent-flash);
+  /* PREMIUM v2: gradiente + brilho interno em vez de cor chapada — leitura de "gloss" premium */
+  background:linear-gradient(180deg, #FFE07A, var(--accent-flash));
   color:#161200;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 6px rgba(0,0,0,.08);
 }
-.btn-flash:hover{transform:translateY(-2px);box-shadow:0 12px 24px -8px rgba(255,210,63,.5);}
+.btn-flash:hover{transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.5), 0 12px 24px -8px rgba(255,210,63,.5);}
 .btn-flash:active{transform:translateY(0) scale(.98);} /* PREMIUM: feedback tátil */
 
 .btn-volt{
-  background:var(--accent-volt);
+  /* PREMIUM v2: mesmo tratamento gloss aplicado ao verde */
+  background:linear-gradient(180deg, #4CFFC0, var(--accent-volt));
   color:#052018;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4), inset 0 -2px 6px rgba(0,0,0,.08);
 }
-.btn-volt:hover{transform:translateY(-2px);box-shadow:0 12px 24px -8px rgba(0,229,160,.45);}
+.btn-volt:hover{transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 12px 24px -8px rgba(0,229,160,.45);}
 .btn-volt:active{transform:translateY(0) scale(.98);} /* PREMIUM */
 
 .btn-ghost{
@@ -110,9 +146,9 @@ ul{list-style:none;}
   position:sticky;
   top:0;
   z-index:100;
-  background:rgba(11,14,20,.75);
-  -webkit-backdrop-filter:blur(14px); /* BUGFIX: sem isto o blur não aparece no Safari/iOS */
-  backdrop-filter:blur(14px);
+  background:rgba(11,14,20,.7);
+  -webkit-backdrop-filter:blur(20px) saturate(160%); /* PREMIUM v2: saturate = vidro "Apple-like" */
+  backdrop-filter:blur(20px) saturate(160%);
   border-bottom:1px solid var(--border-soft);
 }
 .header-inner{
@@ -189,13 +225,37 @@ ul{list-style:none;}
   padding:130px 0 100px; /* PREMIUM: 110/90 -> 130/100, mais respiro */
   overflow:hidden;
 }
+/* PREMIUM v2: vinheta atrás de tudo — escurece as bordas e concentra o olho no centro */
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  background:radial-gradient(ellipse 85% 65% at 50% 0%, transparent 30%, var(--bg-void) 100%);
+  pointer-events:none;
+}
 .hero-bg{
   position:absolute;
   inset:0;
   z-index:0;
+  /* PREMIUM v2: mesh gradient — mais camadas e um leve tom "hot" pra riqueza cromática */
   background:
-    radial-gradient(60% 50% at 80% 0%, rgba(0,229,160,.12), transparent 70%),
-    radial-gradient(50% 40% at 15% 15%, rgba(255,210,63,.10), transparent 70%);
+    radial-gradient(55% 45% at 82% 5%, rgba(0,229,160,.16), transparent 70%),
+    radial-gradient(45% 38% at 12% 10%, rgba(255,210,63,.13), transparent 70%),
+    radial-gradient(40% 40% at 50% 60%, rgba(255,77,109,.05), transparent 75%);
+}
+/* PREMIUM v2: halo lento girando por trás dos blobs — profundidade sem distrair */
+.hero-bg::before{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  background:conic-gradient(from 0deg at 50% 50%, rgba(255,210,63,.06), rgba(0,229,160,.06), rgba(255,77,109,.04), rgba(255,210,63,.06));
+  animation:hero-rotate 40s linear infinite;
+  opacity:.5;
+}
+@keyframes hero-rotate{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
 }
 .grid-dots{
   position:absolute;
@@ -244,7 +304,10 @@ ul{list-style:none;}
   letter-spacing:-.03em;
   margin-bottom:20px;
 }
-.accent-flash{color:var(--accent-flash);}
+.accent-flash{
+  color:var(--accent-flash);
+  text-shadow:0 0 40px rgba(255,210,63,.35); /* PREMIUM v2: glow sutil de autoridade */
+}
 
 .hero-sub{
   font-size:1.08rem;
@@ -263,6 +326,7 @@ ul{list-style:none;}
   padding:8px 8px 8px 20px;
   max-width:600px;
   margin-bottom:48px;
+  box-shadow:var(--shadow-elev); /* PREMIUM v2: eleva a barra de busca do fundo */
   transition:border-color .2s ease, box-shadow .2s ease; /* PREMIUM */
 }
 /* BUGFIX (a11y): o input abaixo zera o outline no foco; sem isto, quem navega
@@ -270,7 +334,7 @@ ul{list-style:none;}
    wrapper, que já tem o formato/raio corretos. */
 .hero-search:focus-within{
   border-color:var(--accent-flash);
-  box-shadow:0 0 0 3px rgba(255,210,63,.18);
+  box-shadow:var(--shadow-elev), 0 0 0 3px rgba(255,210,63,.18);
 }
 .search-icon{color:var(--text-muted);flex-shrink:0;}
 .hero-search input{
@@ -297,6 +361,7 @@ ul{list-style:none;}
   font-weight:700;
   font-size:2rem;
   color:var(--text-primary);
+  letter-spacing:-.02em; /* PREMIUM v2: números mais "cerrados", leitura de dado técnico */
 }
 .stat-label{
   font-size:.82rem;
@@ -326,6 +391,7 @@ ul{list-style:none;}
   background:var(--accent-flash);
   border-color:var(--accent-flash);
   color:#161200;
+  box-shadow:0 8px 18px -8px rgba(255,210,63,.5); /* PREMIUM v2: destaca o filtro ativo */
 }
 
 /* ================= SECTION HEAD ================= */
@@ -375,6 +441,16 @@ ul{list-style:none;}
   transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
   animation:card-in .5s ease both;
 }
+/* PREMIUM v2: sheen sutil no topo do card — luz "batendo" de cima, efeito vidro/carro premium.
+   Puramente decorativo (pointer-events:none), fica atrás do conteúdo real do card. */
+.coupon-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 45%);
+  pointer-events:none;
+}
 /* Visual para cupons vencidos (adicionado automaticamente via JS) */
 .coupon-card.expired {
   opacity: 0.6;
@@ -396,6 +472,7 @@ ul{list-style:none;}
   display:flex;
   flex-direction:column;
   gap:14px;
+  position:relative; /* PREMIUM v2: garante que o conteúdo fique acima do sheen (::before) */
 }
 .coupon-store-row{
   display:flex;
@@ -428,13 +505,13 @@ ul{list-style:none;}
   text-transform:uppercase;
   letter-spacing:.03em;
 }
-.coupon-badge.hot{background:rgba(255,77,109,.15);color:var(--accent-hot);}
-.coupon-badge.new{background:rgba(0,229,160,.15);color:var(--accent-volt);}
+.coupon-badge.hot{background:rgba(255,77,109,.15);color:var(--accent-hot);box-shadow:0 0 0 1px rgba(255,77,109,.2) inset;} /* PREMIUM v2 */
+.coupon-badge.new{background:rgba(0,229,160,.15);color:var(--accent-volt);box-shadow:0 0 0 1px rgba(0,229,160,.2) inset;} /* PREMIUM v2 */
 
 .coupon-discount{
   font-family:var(--font-display);
   font-weight:700;
-  font-size:2rem;
+  font-size:2.15rem; /* PREMIUM v2: 2rem -> 2.15rem, mais impacto — é a 1ª leitura do card */
   letter-spacing:-.02em;
   line-height:1;
   /* PREMIUM: gradiente sutil no texto do desconto — é a 1ª coisa que o olho
@@ -479,6 +556,7 @@ ul{list-style:none;}
   display:flex;
   align-items:center;
   gap:10px;
+  position:relative; /* PREMIUM v2: acima do sheen do card */
 }
 .coupon-code{
   flex:1;
@@ -522,11 +600,22 @@ ul{list-style:none;}
   gap:36px; /* PREMIUM: 32 -> 36 */
 }
 .how-step{
+  position:relative; /* PREMIUM v2: referência pra linha de destaque no topo (::before) */
   padding:30px 26px;
   background:var(--bg-void);
   border:1px solid var(--border-soft);
   border-radius:var(--radius-lg);
+  overflow:hidden; /* PREMIUM v2: garante que a linha de destaque respeite o border-radius */
   transition:transform .25s ease, box-shadow .25s ease; /* PREMIUM */
+}
+/* PREMIUM v2: filete gradiente no topo — reforça a leitura de "passo 1, 2, 3" */
+.how-step::before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg, var(--accent-flash), var(--accent-volt));
+  opacity:.7;
 }
 .how-step:hover{ /* PREMIUM: leve elevação, reforça interatividade/qualidade */
   transform:translateY(-3px);
@@ -574,6 +663,15 @@ ul{list-style:none;}
   right:-100px;top:-140px;
   background:radial-gradient(circle, rgba(0,229,160,.25), transparent 70%);
 }
+/* PREMIUM v2: segundo blob no canto oposto — equilibra a composição, sensação "aurora" */
+.cta-card::after{
+  content:"";
+  position:absolute;
+  width:260px;height:260px;
+  left:-90px;bottom:-130px;
+  background:radial-gradient(circle, rgba(255,210,63,.16), transparent 70%);
+  pointer-events:none;
+}
 .cta-text{position:relative;max-width:480px;}
 .cta-text h2{
   font-family:var(--font-display);
@@ -598,9 +696,19 @@ ul{list-style:none;}
 
 /* ================= FOOTER ================= */
 .footer{
+  position:relative; /* PREMIUM v2: referência pro filete gradiente (::before) */
   background:var(--bg-surface);
   border-top:1px solid var(--border-soft);
   padding:64px 0 0;
+}
+/* PREMIUM v2: filete gradiente fino acima do rodapé — assinatura visual discreta */
+.footer::before{
+  content:"";
+  position:absolute;
+  top:-1px;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--accent-flash), var(--accent-volt), transparent);
+  opacity:.5;
 }
 .footer-inner{
   display:grid;
