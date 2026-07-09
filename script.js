@@ -265,10 +265,11 @@ backToTop.addEventListener("click", () => {
 /* -----------------------------------------------------------
    8) WHATSAPP — substitua o link abaixo pelo link do seu canal
 ------------------------------------------------------------ */
+// Adicione isso ao final do seu script.js
 const whatsappBtn = document.getElementById("whatsappBtn");
 if (whatsappBtn) {
-    whatsappBtn.href = "COLE_O_SEU_LINK_AQUI"; // <--- COLE O LINK DO SEU CANAL AQUI
-    whatsappBtn.target = "_blank"; // Garante que abra em outra aba
+    whatsappBtn.href = "COLE_O_LINK_AQUI"; // Substitua aqui
+    whatsappBtn.target = "_blank";
 }
 
 /* -----------------------------------------------------------
