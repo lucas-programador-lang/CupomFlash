@@ -463,7 +463,7 @@ if (backToTop) {
 ------------------------------------------------------------ */
 if (whatsappBtn) {
   // Link oficial configurado:
-  whatsappBtn.href = "https://chat.whatsapp.com/GDV52fYNibR2i9KQHPldKH?s=sw&p=a&ilr=1";
+  whatsappBtn.href = "https://whatsapp.com/channel/0029VbCjUCy9xVJXCvOFQR1r";
   whatsappBtn.target = "_blank";
   whatsappBtn.rel = "noopener noreferrer";
 
