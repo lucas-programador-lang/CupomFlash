@@ -1,20 +1,35 @@
 [
   {
-    "store": "Teste Vencido",
-    "icon": "⚠️",
+    "store": "Nike",
+    "icon": "👟",
     "category": "moda",
-    "discount": "50% OFF",
-    "desc": "Este deve ficar cinza.",
-    "code": "TESTE1",
-    "validUntil": "2025-01-01"
+    "discount": "20% OFF",
+    "desc": "Cupom válido para todo o site da Nike.",
+    "code": "NIKE20",
+    "expiry": "Válido até 30/08/2026",
+    "validUntil": "2026-08-30",
+    "tag": "new"
   },
   {
-    "store": "Loja Teste",
-    "icon": "🚀",
+    "store": "Amazon",
+    "icon": "📦",
     "category": "eletronicos",
-    "discount": "10% OFF",
-    "desc": "Este deve ficar normal.",
-    "code": "TESTE2",
-    "validUntil": "2026-12-31"
+    "discount": "R$ 50 OFF",
+    "desc": "Em compras acima de R$ 300,00.",
+    "code": "AMZ50",
+    "expiry": "Válido até 15/09/2026",
+    "validUntil": "2026-09-15",
+    "tag": "hot"
+  },
+  {
+    "store": "Ifood",
+    "icon": "🍔",
+    "category": "alimentacao",
+    "discount": "R$ 15 OFF",
+    "desc": "Para seu primeiro pedido ou reativação.",
+    "code": "IFOOD15",
+    "expiry": "Válido até 01/10/2026",
+    "validUntil": "2026-10-01",
+    "tag": "new"
   }
 ]
