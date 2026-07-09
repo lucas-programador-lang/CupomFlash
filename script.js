@@ -42,9 +42,10 @@ function badgeLabel(tag){
   return "";
 }
 
+/* 2) RENDERIZAÇÃO DOS CARDS (VERSÃO ATUALIZADA) */
 function renderCoupons(list) {
   grid.innerHTML = "";
-  const hoje = new Date(); // Data atual
+  const hoje = new Date(); // Criamos a data atual apenas uma vez para otimizar
 
   if (list.length === 0) {
     emptyState.hidden = false;
@@ -52,15 +53,22 @@ function renderCoupons(list) {
     emptyState.hidden = true;
   }
 
+  resultCount.textContent = list.length
+    ? `${list.length} cupom${list.length > 1 ? "s" : ""} encontrado${list.length > 1 ? "s" : ""}`
+    : "";
+
   list.forEach((c, i) => {
-    // Verifica expiração: se a data de hoje for maior que a validUntil
+    // Lógica de Expiração:
+    // Certifique-se de que no seu data.json cada cupom tenha o campo "validUntil": "AAAA-MM-DD"
     const dataExpiracao = new Date(c.validUntil);
     const expirado = hoje > dataExpiracao;
 
     const card = document.createElement("article");
-    // Adiciona a classe 'expired' se estiver vencido para você estilizar no CSS
-    card.className = expirado ? "coupon-card expired" : "coupon-card";
     
+    // Adicionamos a classe 'expired' se o cupom estiver vencido (para o seu CSS cinza funcionar)
+    card.className = expirado ? "coupon-card expired" : "coupon-card";
+    card.style.animationDelay = `${Math.min(i, 8) * 0.05}s`;
+
     card.innerHTML = `
       <div class="coupon-top">
         <div class="coupon-store-row">
@@ -72,20 +80,21 @@ function renderCoupons(list) {
         </div>
         <div class="coupon-discount">${c.discount}</div>
         <p class="coupon-desc">${c.desc}</p>
-        <span class="coupon-expiry">${expirado ? "Cupom Expirado" : c.expiry}</span>
+        <span class="coupon-expiry">${expirado ? "Expirado" : c.expiry}</span>
       </div>
+
       <div class="coupon-seam"></div>
+
       <div class="coupon-bottom">
         <div class="coupon-code">${c.code}</div>
-        <button class="coupon-copy" ${expirado ? "disabled" : ""} data-code="${c.code}">
-          ${expirado ? "Vencido" : "Copiar"}
+        <button class="coupon-copy" ${expirado ? "disabled" : ""} data-code="${c.code}" aria-label="Copiar código" title="Copiar código">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="2"/></svg>
         </button>
       </div>
     `;
     grid.appendChild(card);
   });
 }
-
 /* 3) FILTROS, BUSCA, COPIAR, MENU, CONTADOR E TOPO (O restante do código permanece igual) */
 // [Mantenha aqui as seções 3, 4, 5, 6 e 7 do seu script original]
 
@@ -239,3 +248,18 @@ document.getElementById("whatsappBtn").href = "https://whatsapp.com/channel/SEU_
 document.getElementById("year").textContent = new Date().getFullYear();
 
 renderCoupons(COUPONS);
+
+
+/* 10) AVISO DE NOVO CUPOM (Pop-up simples) */
+function verificarNovoCupom() {
+  const hoje = new Date().toDateString();
+  const ultimaVisita = localStorage.getItem("ultimaVisita");
+
+  if (ultimaVisita !== hoje) {
+    showToast("🔥 Temos novos cupons disponíveis hoje!");
+    localStorage.setItem("ultimaVisita", hoje);
+  }
+}
+
+// Chame esta função após o carregamento inicial
+verificarNovoCupom();
