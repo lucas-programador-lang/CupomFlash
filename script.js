@@ -458,20 +458,25 @@ if (backToTop) {
 /* -----------------------------------------------------------
    11) WHATSAPP — configuração do link do canal
 ------------------------------------------------------------ */
+/* -----------------------------------------------------------
+   11) WHATSAPP — configuração do link do canal
+------------------------------------------------------------ */
 if (whatsappBtn) {
   // TODO: troque SEU_LINK_AQUI pelo link real do canal antes de publicar
-  whatsappBtn.href = "https://whatsapp.com/channel/SEU_LINK_AQUI";
+  const linkConfigurado = "https://whatsapp.com/channel/SEU_LINK_AQUI"; 
+  
+  whatsappBtn.href = linkConfigurado;
   whatsappBtn.target = "_blank";
   whatsappBtn.rel = "noopener noreferrer";
 
   whatsappBtn.addEventListener("click", function (e) {
     if (this.href.includes("SEU_LINK_AQUI")) {
       e.preventDefault();
-      alert("Link do canal não configurado!");
+      // Em vez de alert(), usamos nosso sistema de toast elegante:
+      showToast("⚠️ Link do canal do WhatsApp ainda não foi configurado!", "warning");
     }
   });
 }
-
 /* -----------------------------------------------------------
    12) ANO NO RODAPÉ + AVISO DE NOVOS CUPONS + INÍCIO
 ------------------------------------------------------------ */
