@@ -273,13 +273,18 @@ backToTop.addEventListener("click", () => {
 const whatsappBtn = document.getElementById("whatsappBtn");
 
 if (whatsappBtn) {
+    // TODO: troque SEU_LINK_AQUI pelo link real do canal antes de publicar
     whatsappBtn.href = "https://whatsapp.com/channel/SEU_LINK_AQUI"; // Cole seu link
     whatsappBtn.target = "_blank";
     whatsappBtn.rel = "noopener noreferrer";
     
     // Adiciona um listener para garantir o clique no desktop
     whatsappBtn.addEventListener("click", function(e) {
-        if (this.href === "#") {
+        // BUGFIX: a checagem original comparava this.href com "#", mas o href
+        // já foi trocado para o placeholder duas linhas acima — essa condição
+        // nunca era verdadeira e o alerta nunca disparava. Agora comparamos
+        // com o próprio placeholder, então o aviso funciona até você trocar o link.
+        if (this.href.includes("SEU_LINK_AQUI")) {
             e.preventDefault();
             alert("Link do canal não configurado!");
         }
@@ -290,7 +295,11 @@ if (whatsappBtn) {
 ------------------------------------------------------------ */
 document.getElementById("year").textContent = new Date().getFullYear();
 
-renderCoupons(COUPONS);
+// BUGFIX: esta chamada era duplicada — carregarCupons() já chama renderCoupons()
+// assim que data.json termina de carregar. Como fetch() é assíncrono, esta linha
+// rodava ANTES da resposta chegar, com COUPONS ainda vazio ([]), fazendo o site
+// mostrar "Nenhum cupom encontrado" por um instante em toda visita. Removida.
+// renderCoupons(COUPONS);
 
 
 /* 10) AVISO DE NOVO CUPOM (Pop-up simples) */
