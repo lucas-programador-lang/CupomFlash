@@ -11,102 +11,27 @@
    campos. "category" precisa bater com o data-filter dos pills:
    moda | eletronicos | beleza | casa | alimentacao | viagem
 ------------------------------------------------------------ */
-const COUPONS = [
-  {
-    store: "Nova Trend",
-    icon: "👗",
-    category: "moda",
-    discount: "25% OFF",
-    desc: "Em toda a coleção de inverno, sem valor mínimo.",
-    code: "TREND25",
-    expiry: "Válido até 15/07",
-    tag: "hot"
-  },
-  {
-    store: "TechPoint",
-    icon: "📱",
-    category: "eletronicos",
-    discount: "R$150 OFF",
-    desc: "Em smartphones acima de R$1.500.",
-    code: "TECH150",
-    expiry: "Válido até 20/07",
-    tag: "new"
-  },
-  {
-    store: "Belle Cosméticos",
-    icon: "💄",
-    category: "beleza",
-    discount: "30% OFF",
-    desc: "Perfumaria importada, todas as marcas.",
-    code: "BELLE30",
-    expiry: "Válido até 12/07",
-    tag: "hot"
-  },
-  {
-    store: "Casa Aconchego",
-    icon: "🏠",
-    category: "casa",
-    discount: "20% OFF",
-    desc: "Móveis e decoração, frete grátis acima de R$300.",
-    code: "CASA20",
-    expiry: "Válido até 18/07",
-    tag: null
-  },
-  {
-    store: "Sabor Express",
-    icon: "🍔",
-    category: "alimentacao",
-    discount: "R$15 OFF",
-    desc: "No primeiro pedido pelo app, todas as lojas.",
-    code: "SABOR15",
-    expiry: "Válido até 09/07",
-    tag: "new"
-  },
-  {
-    store: "VoeMais",
-    icon: "✈️",
-    category: "viagem",
-    discount: "12% OFF",
-    desc: "Passagens nacionais compradas via app.",
-    code: "VOE12",
-    expiry: "Válido até 30/07",
-    tag: null
-  },
-  {
-    store: "Urban Fit",
-    icon: "👟",
-    category: "moda",
-    discount: "R$40 OFF",
-    desc: "Tênis esportivos, a partir de R$200.",
-    code: "URBAN40",
-    expiry: "Válido até 14/07",
-    tag: null
-  },
-  {
-    store: "GigaStore",
-    icon: "💻",
-    category: "eletronicos",
-    discount: "10% OFF",
-    desc: "Notebooks e periféricos gamer.",
-    code: "GIGA10",
-    expiry: "Válido até 22/07",
-    tag: "hot"
-  },
-  {
-    store: "Vita Beauty",
-    icon: "✨",
-    category: "beleza",
-    discount: "Leve 3 pague 2",
-    desc: "Em toda linha de skincare selecionada.",
-    code: "VITA3X2",
-    expiry: "Válido até 16/07",
-    tag: null
-  }
-];
+/* =========================================================
+   CupomFlash — script.js (Versão com carregamento via JSON)
+   ========================================================= */
 
-/* -----------------------------------------------------------
-   2) RENDERIZAÇÃO DOS CARDS
------------------------------------------------------------- */
+/* 1) CARREGAR DADOS DO JSON */
+let COUPONS = [];
+
+async function carregarCupons() {
+  try {
+    const response = await fetch('data.json');
+    COUPONS = await response.json();
+    renderCoupons(COUPONS);
+  } catch (error) {
+    console.error("Erro ao carregar o arquivo data.json:", error);
+  }
+}
+
+// Inicia o carregamento
+carregarCupons();
+
+/* 2) RENDERIZAÇÃO DOS CARDS */
 const grid = document.getElementById("couponsGrid");
 const emptyState = document.getElementById("emptyState");
 const resultCount = document.getElementById("resultCount");
@@ -148,9 +73,7 @@ function renderCoupons(list){
         <p class="coupon-desc">${c.desc}</p>
         <span class="coupon-expiry">${c.expiry}</span>
       </div>
-
       <div class="coupon-seam"></div>
-
       <div class="coupon-bottom">
         <div class="coupon-code">${c.code}</div>
         <button class="coupon-copy" data-code="${c.code}" aria-label="Copiar código ${c.code}" title="Copiar código">
@@ -161,6 +84,9 @@ function renderCoupons(list){
     grid.appendChild(card);
   });
 }
+
+/* 3) FILTROS, BUSCA, COPIAR, MENU, CONTADOR E TOPO (O restante do código permanece igual) */
+// [Mantenha aqui as seções 3, 4, 5, 6 e 7 do seu script original]
 
 /* -----------------------------------------------------------
    3) FILTROS + BUSCA
