@@ -1,0 +1,22 @@
+[
+  {
+    "store": "Nova Trend",
+    "icon": "👗",
+    "category": "moda",
+    "discount": "25% OFF",
+    "desc": "Em toda a coleção de inverno, sem valor mínimo.",
+    "code": "TREND25",
+    "expiry": "Válido até 15/07",
+    "tag": "hot"
+  },
+  {
+    "store": "TechPoint",
+    "icon": "📱",
+    "category": "eletronicos",
+    "discount": "R$150 OFF",
+    "desc": "Em smartphones acima de R$1.500.",
+    "code": "TECH150",
+    "expiry": "Válido até 20/07",
+    "tag": "new"
+  }
+]
