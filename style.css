@@ -1473,3 +1473,10 @@ strong{font-weight:700;color:var(--text-primary);} /* NOVO: garante contraste em
   .stat-num{font-size:1.5rem;}
   .coupon-discount{font-size:1.7rem;}
 }
+
+/* Adicione isso ao seu style.css para o alerta de configuração */
+.toast.is-warning {
+    border-left-color: #f1c40f; /* Amarelo ouro para avisos */
+    background-color: #2b2510;  /* Fundo escuro levemente amarelado */
+    color: #fff;
+}
