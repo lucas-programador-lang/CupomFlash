@@ -4,6 +4,9 @@
            accent-flash #FFD23F (urgência) · accent-volt #00E5A0 (economia)
            accent-hot #FF4D6D (destaque/promo)
    Display: Space Grotesk · Body: Inter · Código/Utility: JetBrains Mono
+
+   [REVISÃO PREMIUM] — comentários "// PREMIUM" marcam o que foi
+   adicionado/ajustado. Nenhuma classe, ID ou regra original foi removida.
    ========================================================= */
 
 :root{
@@ -18,12 +21,16 @@
   --border-soft:rgba(255,255,255,.08);
   --border-soft-2:rgba(255,255,255,.14);
   --shadow-glow: 0 0 0 1px rgba(255,210,63,.08), 0 20px 60px -20px rgba(255,210,63,.15);
-  --radius-lg:20px;
+  --radius-lg:22px; /* PREMIUM: 20px -> 22px, curva um pouco mais macia */
   --radius-md:14px;
   --radius-sm:8px;
   --font-display:'Space Grotesk', sans-serif;
   --font-body:'Inter', sans-serif;
   --font-mono:'JetBrains Mono', monospace;
+
+  /* PREMIUM: sombra em duas camadas (ambiente + contato) para profundidade real */
+  --shadow-elev: 0 24px 60px -24px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.05);
+  --shadow-elev-hover: 0 30px 80px -20px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08);
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -73,18 +80,21 @@ ul{list-style:none;}
   font-size:.95rem;
   transition:transform .2s ease, box-shadow .2s ease, background .2s ease;
   white-space:nowrap;
+  cursor:pointer; /* PREMIUM: defensivo, caso o botão não seja um <button> nativo */
 }
 .btn-flash{
   background:var(--accent-flash);
   color:#161200;
 }
 .btn-flash:hover{transform:translateY(-2px);box-shadow:0 12px 24px -8px rgba(255,210,63,.5);}
+.btn-flash:active{transform:translateY(0) scale(.98);} /* PREMIUM: feedback tátil */
 
 .btn-volt{
   background:var(--accent-volt);
   color:#052018;
 }
 .btn-volt:hover{transform:translateY(-2px);box-shadow:0 12px 24px -8px rgba(0,229,160,.45);}
+.btn-volt:active{transform:translateY(0) scale(.98);} /* PREMIUM */
 
 .btn-ghost{
   background:transparent;
@@ -101,6 +111,7 @@ ul{list-style:none;}
   top:0;
   z-index:100;
   background:rgba(11,14,20,.75);
+  -webkit-backdrop-filter:blur(14px); /* BUGFIX: sem isto o blur não aparece no Safari/iOS */
   backdrop-filter:blur(14px);
   border-bottom:1px solid var(--border-soft);
 }
@@ -158,6 +169,7 @@ ul{list-style:none;}
   gap:5px;
   width:28px;
   padding:4px;
+  cursor:pointer; /* PREMIUM: defensivo */
 }
 .nav-toggle span{
   display:block;
@@ -174,7 +186,7 @@ ul{list-style:none;}
 /* ================= HERO ================= */
 .hero{
   position:relative;
-  padding:110px 0 90px;
+  padding:130px 0 100px; /* PREMIUM: 110/90 -> 130/100, mais respiro */
   overflow:hidden;
 }
 .hero-bg{
@@ -251,6 +263,14 @@ ul{list-style:none;}
   padding:8px 8px 8px 20px;
   max-width:600px;
   margin-bottom:48px;
+  transition:border-color .2s ease, box-shadow .2s ease; /* PREMIUM */
+}
+/* BUGFIX (a11y): o input abaixo zera o outline no foco; sem isto, quem navega
+   por teclado perde a referência visual de foco. Movemos o indicador para o
+   wrapper, que já tem o formato/raio corretos. */
+.hero-search:focus-within{
+  border-color:var(--accent-flash);
+  box-shadow:0 0 0 3px rgba(255,210,63,.18);
 }
 .search-icon{color:var(--text-muted);flex-shrink:0;}
 .hero-search input{
@@ -263,7 +283,7 @@ ul{list-style:none;}
   padding:10px 0;
   min-width:0;
 }
-.hero-search input:focus{outline:none;}
+.hero-search input:focus{outline:none;} /* seguro agora: o foco visível fica no wrapper acima */
 .hero-search input::placeholder{color:var(--text-muted);}
 
 .hero-stats{
@@ -299,6 +319,7 @@ ul{list-style:none;}
   font-size:.88rem;
   font-weight:600;
   transition:all .2s ease;
+  cursor:pointer; /* PREMIUM: defensivo */
 }
 .pill:hover{border-color:var(--accent-flash);color:var(--text-primary);}
 .pill.is-active{
@@ -328,12 +349,12 @@ ul{list-style:none;}
 }
 
 /* ================= COUPONS ================= */
-.coupons{padding:20px 0 90px;}
+.coupons{padding:30px 0 100px;} /* PREMIUM: 20/90 -> 30/100 */
 
 .coupons-grid{
   display:grid;
   grid-template-columns:repeat(3, 1fr);
-  gap:26px;
+  gap:30px; /* PREMIUM: 26px -> 30px */
 }
 
 .empty-state{
@@ -350,6 +371,7 @@ ul{list-style:none;}
   border:1px solid var(--border-soft);
   border-radius:var(--radius-lg);
   overflow:visible;
+  box-shadow:var(--shadow-elev); /* PREMIUM: sombra de repouso mais rica */
   transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
   animation:card-in .5s ease both;
 }
@@ -362,7 +384,7 @@ ul{list-style:none;}
 .coupon-card:hover{
   transform:translateY(-4px);
   border-color:var(--border-soft-2);
-  box-shadow:var(--shadow-glow);
+  box-shadow:var(--shadow-elev-hover), var(--shadow-glow); /* PREMIUM: elevação + glow no hover */
 }
 @keyframes card-in{
   from{opacity:0; transform:translateY(10px);}
@@ -370,7 +392,7 @@ ul{list-style:none;}
 }
 
 .coupon-top{
-  padding:22px 22px 20px;
+  padding:26px 26px 22px; /* PREMIUM: 22/22/20 -> 26/26/22 */
   display:flex;
   flex-direction:column;
   gap:14px;
@@ -414,8 +436,13 @@ ul{list-style:none;}
   font-weight:700;
   font-size:2rem;
   letter-spacing:-.02em;
-  color:var(--accent-flash);
   line-height:1;
+  /* PREMIUM: gradiente sutil no texto do desconto — é a 1ª coisa que o olho
+     deve pegar, então ganha mais destaque que uma cor sólida */
+  background:linear-gradient(135deg, var(--accent-flash), #FFEB99);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
 }
 .coupon-desc{
   font-size:.88rem;
@@ -476,6 +503,7 @@ ul{list-style:none;}
   border-radius:var(--radius-sm);
   background:var(--accent-volt);
   color:#052018;
+  cursor:pointer; /* PREMIUM: defensivo */
   transition:transform .2s ease, background .2s ease;
 }
 .coupon-copy:hover{transform:scale(1.06);}
@@ -483,7 +511,7 @@ ul{list-style:none;}
 
 /* ================= HOW IT WORKS ================= */
 .how{
-  padding:90px 0;
+  padding:110px 0; /* PREMIUM: 90 -> 110 */
   background:var(--bg-surface);
   border-top:1px solid var(--border-soft);
   border-bottom:1px solid var(--border-soft);
@@ -491,13 +519,18 @@ ul{list-style:none;}
 .how-grid{
   display:grid;
   grid-template-columns:repeat(3, 1fr);
-  gap:32px;
+  gap:36px; /* PREMIUM: 32 -> 36 */
 }
 .how-step{
   padding:30px 26px;
   background:var(--bg-void);
   border:1px solid var(--border-soft);
   border-radius:var(--radius-lg);
+  transition:transform .25s ease, box-shadow .25s ease; /* PREMIUM */
+}
+.how-step:hover{ /* PREMIUM: leve elevação, reforça interatividade/qualidade */
+  transform:translateY(-3px);
+  box-shadow:var(--shadow-elev);
 }
 .how-num{
   display:block;
@@ -516,9 +549,12 @@ ul{list-style:none;}
 .how-step p{color:var(--text-muted);font-size:.92rem;}
 
 /* ================= CTA ================= */
-.cta{padding:90px 0;}
+.cta{padding:110px 0;} /* PREMIUM: 90 -> 110 */
 .cta-card{
   position:relative;
+  isolation:isolate; /* BUGFIX: cria stacking context próprio; corrige a causa-raiz
+                         do problema que o hack de z-index no #whatsappBtn (abaixo)
+                         estava remendando. O hack foi mantido como rede de segurança. */
   background:linear-gradient(135deg, var(--bg-surface), var(--bg-surface-2));
   border:1px solid var(--border-soft-2);
   border-radius:28px;
@@ -529,6 +565,7 @@ ul{list-style:none;}
   gap:32px;
   flex-wrap:wrap;
   overflow:hidden;
+  box-shadow:var(--shadow-elev); /* PREMIUM */
 }
 .cta-card::before{
   content:"";
@@ -546,6 +583,18 @@ ul{list-style:none;}
 }
 .cta-text p{color:var(--text-muted);}
 .cta-inner{position:relative;}
+
+/* PREMIUM: o WhatsApp é o ponto focal da página — pulso sutil de "respiração"
+   pra puxar o olho, sem ser irritante (some automaticamente com
+   prefers-reduced-motion, já tratado no topo do arquivo). */
+.cta-card a#whatsappBtn{
+  animation:whatsapp-pulse 2.6s ease-in-out infinite;
+}
+@keyframes whatsapp-pulse{
+  0%{box-shadow:0 0 0 0 rgba(0,229,160,.45);}
+  70%{box-shadow:0 0 0 16px rgba(0,229,160,0);}
+  100%{box-shadow:0 0 0 0 rgba(0,229,160,0);}
+}
 
 /* ================= FOOTER ================= */
 .footer{
@@ -611,6 +660,7 @@ ul{list-style:none;}
   pointer-events:none;
   transform:translateY(10px);
   transition:opacity .25s ease, transform .25s ease;
+  cursor:pointer; /* PREMIUM: defensivo */
   z-index:90;
 }
 .back-to-top.is-visible{opacity:1;pointer-events:auto;transform:translateY(0);}
