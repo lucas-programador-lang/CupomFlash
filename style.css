@@ -858,3 +858,16 @@ ul{list-style:none;}
   pointer-events: auto;
   cursor: pointer;
 }
+
+/* Ajuste de tamanho da logo */
+.logo img {
+  height: 40px;      /* Ajuste a altura conforme preferir (ex: 35px a 50px) */
+  width: auto;       /* Mantém a proporção da imagem */
+  display: block;    /* Remove espaços indesejados abaixo da imagem */
+  transition: opacity 0.3s ease; /* Efeito suave ao passar o mouse */
+}
+
+/* Opcional: Efeito ao passar o mouse na logo */
+.logo img:hover {
+  opacity: 0.8;
+}
