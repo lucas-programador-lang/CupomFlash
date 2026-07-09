@@ -22,6 +22,10 @@ async function carregarCupons() {
   try {
     const response = await fetch('data.json');
     COUPONS = await response.json();
+    
+    // ATUALIZAÇÃO AUTOMÁTICA
+    atualizarEstatisticas(COUPONS);
+    
     renderCoupons(COUPONS);
   } catch (error) {
     console.error("Erro ao carregar o arquivo data.json:", error);
@@ -30,6 +34,24 @@ async function carregarCupons() {
 
 // Inicia o carregamento
 carregarCupons();
+
+function atualizarEstatisticas(lista) {
+  const hoje = new Date();
+  const ativos = lista.filter(c => new Date(c.validUntil) >= hoje).length;
+  const lojas = new Set(lista.map(c => c.store)).size;
+
+  const elCoupons = document.getElementById("totalCoupons");
+  const elStores = document.getElementById("totalStores");
+
+  if (elCoupons) {
+    elCoupons.dataset.count = ativos;
+    animateCount(elCoupons);
+  }
+  if (elStores) {
+    elStores.dataset.count = lojas;
+    animateCount(elStores);
+  }
+}
 
 /* 2) RENDERIZAÇÃO DOS CARDS */
 const grid = document.getElementById("couponsGrid");
