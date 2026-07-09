@@ -1,5 +1,5 @@
 /* =========================================================
-   CupomFlash — style.css  (v2 · Premium Edition)
+   CupomFlash — style.css  (v2 · Premium Edition — CORRIGIDO)
    Dark Mode Premium · Glassmorphism · Mobile-First
 
    Sumário:
@@ -26,6 +26,22 @@
      ricos e menos "chapados".
    - Sistema de elevação (shadow) com 5 níveis em vez de 2.
    - Novas classes utilitárias marcadas com comentário "NOVO".
+
+   *** CORREÇÃO APLICADA NESTA VERSÃO ***
+   O bloco final do arquivo original ("CORREÇÃO DE SOBREPOSIÇÃO:
+   TAGS VS FAVORITOS") tornava .coupon-badge um elemento
+   `position:absolute` fixado no canto superior esquerdo do card.
+   Isso tirava a badge do fluxo do .coupon-store-row (flex) e
+   criava uma NOVA sobreposição: a badge passava a ficar em cima
+   do ícone/nome da loja (.coupon-store-icon / .coupon-store).
+   Também havia uma regra duplicada `.coupon-card{position:relative}`.
+
+   A correção abaixo resolve o problema original (badge encostando
+   no botão de favoritar) sem quebrar o layout: a badge continua
+   dentro do fluxo normal (flex, alinhada à direita do
+   .coupon-store-row), e reservamos espaço à direita nesse row
+   para o botão de favoritar não colidir com ela. Veja a seção
+   "7.1 CORREÇÃO — Badge vs Botão de Favoritar" no final do arquivo.
    ========================================================= */
 
 /* =========================================================
@@ -756,6 +772,9 @@ strong{font-weight:700;color:var(--text-primary);} /* NOVO: garante contraste em
   min-width:100%;
 }
 .pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px; /* Espaço entre o ícone e o texto */
   padding:10px 18px;
   border-radius:var(--radius-pill);
   border:1px solid var(--glass-border-strong);
@@ -776,6 +795,14 @@ strong{font-weight:700;color:var(--text-primary);} /* NOVO: garante contraste em
   color:#04140E;
   box-shadow:0 8px 20px -8px rgba(0,255,163,.5);
 }
+
+.pill svg{
+  stroke-width:2; /* Ajusta a espessura da linha do ícone */
+  opacity:.8;      /* Leve transparência que fica chique no tema escuro */
+}
+
+/* Garante que o ícone mude de cor junto com o texto quando o botão estiver ativo */
+.pill.is-active svg{opacity:1;}
 
 /* NOVO: contador de resultados dentro do pill ativo, ex. "Restaurantes (12)" */
 .pill .pill-count{
@@ -908,6 +935,10 @@ strong{font-weight:700;color:var(--text-primary);} /* NOVO: garante contraste em
   align-items:center;
   justify-content:space-between;
   gap:10px;
+  /* CORREÇÃO: reserva espaço à direita para o botão de favoritar (.coupon-fav)
+     não colidir com a badge (.coupon-badge), que fica alinhada à direita
+     deste row por causa do justify-content:space-between acima. */
+  padding-right:40px;
 }
 .coupon-store{
   display:flex;
@@ -1060,12 +1091,13 @@ strong{font-weight:700;color:var(--text-primary);} /* NOVO: garante contraste em
   100%{transform:scale(1);}
 }
 
-/* NOVO: favoritar cupom — posicionado no canto do card */
+/* CORREÇÃO — Favoritar: fica no canto superior direito do card, por cima de
+   tudo (z-index alto), sem tirar a badge do fluxo normal do store-row. */
 .coupon-fav{
   position:absolute;
-  top:18px;
-  right:18px;
-  z-index:2;
+  top:14px;
+  right:14px;
+  z-index:10;
 }
 
 /* =========================================================
@@ -1375,6 +1407,11 @@ strong{font-weight:700;color:var(--text-primary);} /* NOVO: garante contraste em
 
 /* NOVO: variantes de toast — aplique junto com .toast, ex. class="toast is-visible is-error" */
 .toast.is-error::before{content:"!";background:var(--accent-hot);color:#2A0007;}
+.toast.is-warning{
+  border-left:3px solid #f1c40f; /* Amarelo ouro para avisos */
+  background-color:#2b2510;      /* Fundo escuro levemente amarelado */
+  color:#fff;
+}
 .toast.is-warning::before{content:"!";background:var(--accent-flash);color:#1A1200;}
 .toast.is-info::before{content:"i";background:var(--accent-violet);color:#0E0A2A;}
 
@@ -1472,57 +1509,8 @@ strong{font-weight:700;color:var(--text-primary);} /* NOVO: garante contraste em
   .hero-title{font-size:1.9rem;}
   .stat-num{font-size:1.5rem;}
   .coupon-discount{font-size:1.7rem;}
-}
 
-/* Adicione isso ao seu style.css para o alerta de configuração */
-.toast.is-warning {
-    border-left-color: #f1c40f; /* Amarelo ouro para avisos */
-    background-color: #2b2510;  /* Fundo escuro levemente amarelado */
-    color: #fff;
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px; /* Espaço entre o ícone e o texto */
-}
-
-.pill svg {
-  stroke-width: 2; /* Ajusta a espessura da linha do ícone */
-  opacity: 0.8;    /* Leve transparência que fica chique no tema escuro */
-}
-
-/* Garante que o ícone mude de cor junto com o texto quando o botão estiver ativo */
-.pill.is-active svg {
-  opacity: 1;
-}
-
-/* --- Ajuste de sobreposição (Favoritos vs Tags) --- */
-
-/* --- CORREÇÃO DE SOBREPOSIÇÃO: TAGS VS FAVORITOS --- */
-
-/* 1. Garante que o card seja o contexto de posicionamento */
-/* Garante que o container do card permita posicionar elementos filhos */
-.coupon-card {
-  position: relative;
-}
-
-/* Força o botão de favorito para o canto superior direito */
-.coupon-fav {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 10; /* Garante que o botão fique sempre por cima */
-  cursor: pointer;
-}
-
-/* Ajusta as badges para garantir que não colidam com o botão */
-.coupon-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px; /* Garante que a badge fique no canto esquerdo */
-  z-index: 5;
-  /* Adicione um recuo à direita para evitar que o texto encoste no botão, 
-     caso a badge seja muito longa */
-  margin-right: 40px; 
+  /* Em telas muito pequenas o espaço reservado para o botão de favoritar
+     pode ficar apertado; reduzimos levemente o padding do row. */
+  .coupon-store-row{padding-right:32px;}
 }
