@@ -1,61 +1,98 @@
 /* =========================================================
-   CupomFlash — style.css
+   CupomFlash — style.css  (v2 · Premium Edition)
    Dark Mode Premium · Glassmorphism · Mobile-First
 
    Sumário:
    1. Variáveis (Design Tokens)
    2. Reset & Base
-   3. Utilitários (container, botões, foco, scrollbar)
+   3. Utilitários (container, botões, foco, scrollbar, tags, skeleton)
    4. Header / Logo
    5. Hero
    6. Categorias / Filtros
    7. Cards de Cupom (Glassmorphism)
    8. Como Funciona
    9. CTA (WhatsApp)
-   10. Footer
-   11. Back to Top / Toast
-   12. Media Queries (Mobile-First — regras base já são mobile;
+   10. Newsletter
+   11. Footer
+   12. Back to Top / Toast
+   13. Estados especiais (loading, erro, acessibilidade)
+   14. Media Queries (Mobile-First — regras base já são mobile;
        breakpoints abaixo escalam para tablet/desktop/ultra-wide)
+
+   Notas da revisão:
+   - Todas as classes originais foram preservadas (nada quebra no
+     HTML/JS existente). Classes novas são aditivas e opcionais.
+   - Paleta ampliada com tons intermediários para gradientes mais
+     ricos e menos "chapados".
+   - Sistema de elevação (shadow) com 5 níveis em vez de 2.
+   - Novas classes utilitárias marcadas com comentário "NOVO".
    ========================================================= */
 
 /* =========================================================
    1. VARIÁVEIS (DESIGN TOKENS)
    ========================================================= */
 :root{
-  /* --- Cor: Dark Mode Premium (cinza espacial + verde neon) --- */
-  --bg-void:#0A0C10;          /* preto fosco de fundo */
-  --bg-surface:#12151C;        /* cinza espacial — superfícies */
-  --bg-surface-2:#1A1E27;      /* cinza espacial, um tom acima */
-  --glass-bg:rgba(22, 26, 34, .55);   /* base do glassmorphism */
-  --glass-bg-strong:rgba(18, 21, 28, .75);
-  --glass-border:rgba(255, 255, 255, .09);
-  --glass-border-strong:rgba(255, 255, 255, .16);
+  color-scheme: dark; /* NOVO: inputs, scrollbars e controles nativos seguem o tema escuro */
 
-  --accent-volt:#00FFA3;       /* verde neon — ação/economia */
+  /* --- Cor: Dark Mode Premium (cinza espacial + verde neon) --- */
+  --bg-void:#0A0C10;
+  --bg-surface:#12151C;
+  --bg-surface-2:#1A1E27;
+  --bg-surface-3:#20242F;         /* NOVO: terceiro tom para profundidade extra */
+
+  --glass-bg:rgba(22, 26, 34, .55);
+  --glass-bg-strong:rgba(18, 21, 28, .78);
+  --glass-bg-soft:rgba(26, 30, 39, .35);   /* NOVO: vidro mais leve para elementos secundários */
+  --glass-border:rgba(255, 255, 255, .09);
+  --glass-border-strong:rgba(255, 255, 255, .17);
+  --glass-highlight:rgba(255, 255, 255, .08); /* NOVO: reflexo superior de vidro */
+
+  --accent-volt:#00FFA3;
+  --accent-volt-2:#3DFFC4;        /* NOVO: tom claro do verde, para gradientes suaves */
+  --accent-volt-deep:#00CC82;     /* NOVO: tom escuro do verde, para hover/active */
   --accent-volt-soft:rgba(0, 255, 163, .14);
-  --accent-flash:#FFD23F;      /* amarelo — urgência */
-  --accent-hot:#FF4D6D;        /* rosa/vermelho — destaque */
+  --accent-flash:#FFD23F;
+  --accent-flash-2:#FFE07A;
+  --accent-hot:#FF4D6D;
+  --accent-hot-soft:rgba(255, 77, 109, .14);
+  --accent-violet:#8B7CFF;        /* NOVO: acento terciário para variação/badges premium */
 
   --text-primary:#F5F7FA;
+  --text-secondary:#C4C9D4;       /* NOVO: intermediário entre primary e muted */
   --text-muted:#8B93A3;
   --text-faint:#5C6270;
 
-  /* --- Sombras & Elevação --- */
+  /* --- Sombras & Elevação (sistema de 5 níveis) --- */
+  --shadow-xs: 0 2px 8px -4px rgba(0,0,0,.35);
   --shadow-sm: 0 4px 14px -6px rgba(0,0,0,.4);
   --shadow-md: 0 20px 50px -20px rgba(0,0,0,.55);
+  --shadow-lg: 0 30px 80px -30px rgba(0,0,0,.65);        /* NOVO */
+  --shadow-xl: 0 48px 120px -40px rgba(0,0,0,.72);        /* NOVO */
   --shadow-glow-volt: 0 0 0 1px rgba(0,255,163,.12), 0 20px 60px -25px rgba(0,255,163,.35);
   --shadow-glow-flash: 0 0 0 1px rgba(255,210,63,.1), 0 20px 60px -25px rgba(255,210,63,.3);
+  --shadow-glow-hot: 0 0 0 1px rgba(255,77,109,.12), 0 20px 60px -25px rgba(255,77,109,.32); /* NOVO */
+  --shadow-inset-top: inset 0 1px 0 rgba(255,255,255,.08);  /* NOVO: aro de luz sutil */
 
-  /* --- Raio (border-radius generoso) --- */
+  /* --- Raio --- */
   --radius-lg:24px;
   --radius-md:16px;
   --radius-sm:10px;
+  --radius-xs:6px;                /* NOVO */
   --radius-pill:999px;
 
   /* --- Tipografia --- */
   --font-display:'Montserrat', 'Inter', sans-serif;
   --font-body:'Inter', sans-serif;
   --font-mono:'JetBrains Mono', monospace;
+
+  /* Escala tipográfica (rem) — NOVO: nomeada para reuso consistente */
+  --fs-xs:.75rem;
+  --fs-sm:.85rem;
+  --fs-base:1rem;
+  --fs-md:1.125rem;
+  --fs-lg:1.4rem;
+  --fs-xl:1.9rem;
+  --fs-2xl:2.6rem;
 
   /* --- Espaçamento (escala 4px) --- */
   --space-1:4px;
@@ -70,8 +107,17 @@
 
   /* --- Transições --- */
   --ease-out: cubic-bezier(.16,1,.3,1);
+  --ease-spring: cubic-bezier(.34,1.56,.64,1); /* NOVO: para micro-interações com "bounce" sutil */
   --t-fast:.18s ease;
   --t-med:.3s var(--ease-out);
+  --t-slow:.5s var(--ease-out);   /* NOVO */
+
+  /* --- Gradientes reutilizáveis (NOVO) --- */
+  --grad-volt: linear-gradient(135deg, var(--accent-volt-2), var(--accent-volt) 55%, var(--accent-volt-deep));
+  --grad-flash: linear-gradient(135deg, var(--accent-flash-2), var(--accent-flash));
+  --grad-brand-text: linear-gradient(135deg, var(--accent-volt), var(--accent-flash));
+  --grad-surface: linear-gradient(180deg, var(--bg-surface-2), var(--bg-surface));
+  --grad-noise: radial-gradient(rgba(255,255,255,.035) 1px, transparent 1px);
 }
 
 /* =========================================================
@@ -86,6 +132,8 @@
 html{
   scroll-behavior:smooth;
   -webkit-text-size-adjust:100%;
+  scrollbar-color: var(--bg-surface-2) var(--bg-void); /* NOVO: Firefox */
+  scrollbar-width: thin; /* NOVO: Firefox */
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -94,6 +142,7 @@ html{
     animation-duration:.001ms !important;
     animation-iteration-count:1 !important;
     transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
   }
 }
 
@@ -104,23 +153,29 @@ body{
   font-size:16px;
   line-height:1.55;
   -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
   text-rendering:optimizeLegibility;
+  font-feature-settings:"tnum" 1, "cv11" 1; /* NOVO: números tabulares, mais legível em preços/descontos */
   overflow-x:hidden;
 }
 
-/* Fundo ambiente sutil — evita "preto chapado" sem pesar na performance */
+/* Fundo ambiente — camadas radiais + grão sutil para textura "premium" sem pesar performance */
 body{
   background-image:
     radial-gradient(60% 40% at 85% 0%, rgba(0,255,163,.05), transparent 70%),
-    radial-gradient(50% 35% at 10% 5%, rgba(255,210,63,.045), transparent 70%);
-  background-repeat:no-repeat;
+    radial-gradient(50% 35% at 10% 5%, rgba(255,210,63,.045), transparent 70%),
+    var(--grad-noise); /* NOVO: grão fino */
+  background-size:auto, auto, 3px 3px; /* NOVO */
+  background-repeat:no-repeat, no-repeat, repeat; /* NOVO */
+  background-attachment:fixed, fixed, fixed;
 }
 
 img{max-width:100%;display:block;}
 a{color:inherit;text-decoration:none;}
 button{font:inherit;cursor:pointer;border:none;background:none;color:inherit;}
 ul{list-style:none;}
-input{font:inherit;}
+input, textarea, select{font:inherit;}
+svg{display:block;}
 
 h1,h2,h3,h4{
   font-family:var(--font-display);
@@ -128,12 +183,21 @@ h1,h2,h3,h4{
   line-height:1.15;
 }
 
+strong{font-weight:700;color:var(--text-primary);} /* NOVO: garante contraste em textos muted com <strong> */
+
 /* =========================================================
    3. UTILITÁRIOS
    ========================================================= */
 .container{
   width:100%;
   max-width:1240px;
+  margin-inline:auto;
+  padding-inline:20px;
+}
+
+.container-narrow{ /* NOVO: para seções de texto (newsletter, avisos) */
+  width:100%;
+  max-width:720px;
   margin-inline:auto;
   padding-inline:20px;
 }
@@ -158,6 +222,89 @@ h1,h2,h3,h4{
 }
 ::-webkit-scrollbar-thumb:hover{background:var(--glass-border-strong);}
 
+/* NOVO: esconde visualmente mas mantém acessível a leitores de tela */
+.sr-only{
+  position:absolute;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+/* NOVO: divisor decorativo com gradiente da marca */
+.divider{
+  height:1px;
+  border:none;
+  background:linear-gradient(90deg, transparent, var(--glass-border-strong), transparent);
+  margin-block:var(--space-6);
+}
+
+/* NOVO: tags/etiquetas menores que badges, para metadados (ex: categoria, tempo de leitura) */
+.tag{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:3px 10px;
+  border-radius:var(--radius-pill);
+  font-size:var(--fs-xs);
+  font-weight:600;
+  color:var(--text-muted);
+  background:var(--glass-bg-soft);
+  border:1px solid var(--glass-border);
+}
+
+/* NOVO: placeholders de carregamento (skeleton) para cards enquanto os cupons carregam via JS */
+.skeleton{
+  position:relative;
+  overflow:hidden;
+  background:var(--bg-surface-2);
+  border-radius:var(--radius-sm);
+  color:transparent !important;
+  pointer-events:none;
+}
+.skeleton::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  transform:translateX(-100%);
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+  animation:skeleton-sweep 1.6s ease-in-out infinite;
+}
+@keyframes skeleton-sweep{
+  100%{transform:translateX(100%);}
+}
+
+/* NOVO: tooltip simples via atributo data-tooltip (uso opcional no JS) */
+[data-tooltip]{position:relative;}
+[data-tooltip]::after{
+  content:attr(data-tooltip);
+  position:absolute;
+  bottom:calc(100% + 8px);
+  left:50%;
+  transform:translateX(-50%) translateY(4px);
+  background:var(--glass-bg-strong);
+  border:1px solid var(--glass-border-strong);
+  color:var(--text-primary);
+  font-size:var(--fs-xs);
+  font-weight:600;
+  padding:6px 10px;
+  border-radius:var(--radius-xs);
+  white-space:nowrap;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity var(--t-fast), transform var(--t-fast);
+  z-index:50;
+  -webkit-backdrop-filter:blur(10px);
+  backdrop-filter:blur(10px);
+}
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
 /* --- Botões --- */
 .btn{
   display:inline-flex;
@@ -170,19 +317,27 @@ h1,h2,h3,h4{
   font-size:.95rem;
   white-space:nowrap;
   cursor:pointer;
-  transition:transform var(--t-fast), box-shadow var(--t-fast), background var(--t-fast), border-color var(--t-fast);
+  transition:transform var(--t-fast), box-shadow var(--t-fast), background var(--t-fast), border-color var(--t-fast), opacity var(--t-fast);
 }
 .btn:active{transform:translateY(0) scale(.97);}
 
-.btn-volt{
-  background:linear-gradient(180deg, #4CFFC0, var(--accent-volt));
-  color:#04140E;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 10px 26px -10px rgba(0,255,163,.45);
+.btn:disabled,
+.btn.is-disabled{ /* NOVO */
+  opacity:.45;
+  cursor:not-allowed;
+  transform:none !important;
+  box-shadow:none !important;
 }
-.btn-volt:hover{transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 14px 32px -8px rgba(0,255,163,.55);}
+
+.btn-volt{
+  background:var(--grad-volt);
+  color:#04140E;
+  box-shadow:var(--shadow-inset-top), 0 10px 26px -10px rgba(0,255,163,.45);
+}
+.btn-volt:hover{transform:translateY(-2px);box-shadow:var(--shadow-inset-top), 0 14px 32px -8px rgba(0,255,163,.55);}
 
 .btn-flash{
-  background:linear-gradient(180deg, #FFE07A, var(--accent-flash));
+  background:var(--grad-flash);
   color:#1A1200;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.5), 0 10px 26px -10px rgba(255,210,63,.4);
 }
@@ -197,7 +352,57 @@ h1,h2,h3,h4{
 }
 .btn-ghost:hover{border-color:var(--accent-volt);color:var(--accent-volt);}
 
+/* NOVO: variante outline para ações secundárias que precisam de menos peso visual que o ghost */
+.btn-outline{
+  background:transparent;
+  border:1px solid var(--glass-border-strong);
+  color:var(--text-secondary);
+}
+.btn-outline:hover{
+  border-color:var(--accent-volt);
+  color:var(--text-primary);
+  background:var(--accent-volt-soft);
+}
+
+/* NOVO: botão apenas ícone (favoritar, compartilhar) */
+.btn-icon{
+  display:inline-grid;
+  place-items:center;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:var(--glass-bg-soft);
+  border:1px solid var(--glass-border);
+  color:var(--text-muted);
+  transition:all var(--t-fast);
+}
+.btn-icon:hover{
+  color:var(--accent-hot);
+  border-color:rgba(255,77,109,.4);
+  background:var(--accent-hot-soft);
+  transform:scale(1.06);
+}
+.btn-icon.is-active{ /* NOVO: ex. favoritado */
+  color:var(--accent-hot);
+  background:var(--accent-hot-soft);
+  border-color:rgba(255,77,109,.4);
+}
+
 .btn-sm{padding:9px 18px;font-size:.85rem;}
+.btn-lg{padding:16px 32px;font-size:1.02rem;} /* NOVO */
+
+/* NOVO: estado de carregamento do botão — combine com .btn-volt/.btn-flash e um <span class="btn-spinner"> */
+.btn.is-loading{pointer-events:none;color:transparent !important;position:relative;}
+.btn.is-loading::after{
+  content:"";
+  position:absolute;
+  width:18px;height:18px;
+  border-radius:50%;
+  border:2px solid rgba(4,20,14,.35);
+  border-top-color:#04140E;
+  animation:btn-spin .7s linear infinite;
+}
+@keyframes btn-spin{to{transform:rotate(360deg);}}
 
 /* =========================================================
    4. HEADER / LOGO (Glassmorphism)
@@ -210,6 +415,14 @@ h1,h2,h3,h4{
   -webkit-backdrop-filter:blur(18px) saturate(160%);
   backdrop-filter:blur(18px) saturate(160%);
   border-bottom:1px solid var(--glass-border);
+  transition:background var(--t-med), box-shadow var(--t-med), border-color var(--t-med); /* NOVO */
+}
+
+/* NOVO: classe opcional que o JS pode aplicar ao rolar a página, para reforçar profundidade */
+.header.is-scrolled{
+  background:var(--glass-bg-strong);
+  box-shadow:var(--shadow-sm);
+  border-bottom-color:var(--glass-border-strong);
 }
 
 .header-inner{
@@ -229,28 +442,32 @@ h1,h2,h3,h4{
   letter-spacing:-.02em;
 }
 
-/* Logo em imagem (cupomflash.png) — proporção preservada, tamanho controlado */
 .logo img{
-  height:36px;      /* header: compacta e nítida, sem distorcer o layout */
+  height:36px;
   width:auto;
   max-width:160px;
   object-fit:contain;
   display:block;
-  transition:opacity var(--t-fast);
+  transition:opacity var(--t-fast), transform var(--t-fast);
 }
-.logo img:hover{opacity:.85;}
+.logo img:hover{opacity:.85;transform:scale(1.02);}
 
 .logo-bolt{
   display:inline-grid;
   place-items:center;
   width:30px;height:30px;
-  background:var(--accent-volt);
+  background:var(--grad-volt);
   color:#04140E;
   border-radius:8px;
   font-size:1rem;
   flex-shrink:0;
 }
-.logo-accent{color:var(--accent-volt);}
+.logo-accent{
+  background:var(--grad-brand-text); /* NOVO: leve gradiente no texto de destaque da marca */
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
 
 .nav{
   display:flex;
@@ -271,14 +488,15 @@ h1,h2,h3,h4{
   position:absolute;
   left:0;bottom:0;
   width:0;height:2px;
-  background:var(--accent-volt);
+  background:var(--grad-brand-text);
   transition:width .25s var(--ease-out);
 }
-.nav-link:hover::after{width:100%;}
+.nav-link:hover::after,
+.nav-link.is-active::after{width:100%;} /* NOVO: suporte a estado de página/seção ativa */
+.nav-link.is-active{color:var(--text-primary);}
 
 .header-actions{display:flex;align-items:center;gap:12px;}
 
-/* Menu mobile (hamburguer) — visível por padrão no mobile-first, oculto em telas largas */
 .nav-toggle{
   display:flex;
   flex-direction:column;
@@ -299,7 +517,7 @@ h1,h2,h3,h4{
 .nav-toggle.is-open span:nth-child(2){opacity:0;}
 .nav-toggle.is-open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 
-.nav{display:none;} /* mobile-first: nav completo escondido; menu abre via .is-open */
+.nav{display:none;}
 .nav.is-open{
   display:flex;
   position:absolute;
@@ -313,8 +531,28 @@ h1,h2,h3,h4{
   align-items:flex-start;
   padding:20px;
   gap:16px;
+  animation:nav-drop .3s var(--ease-out) both; /* NOVO */
+}
+@keyframes nav-drop{
+  from{opacity:0; transform:translateY(-8px);}
+  to{opacity:1; transform:translateY(0);}
 }
 .header-actions .btn-ghost{display:none;}
+
+/* NOVO: overlay escuro atrás do menu mobile aberto (opcional; adicione <div class="nav-overlay"> no HTML/JS) */
+.nav-overlay{
+  position:fixed;
+  inset:0;
+  top:68px;
+  background:rgba(0,0,0,.5);
+  -webkit-backdrop-filter:blur(2px);
+  backdrop-filter:blur(2px);
+  z-index:95;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity var(--t-med);
+}
+.nav-overlay.is-visible{opacity:1;pointer-events:auto;}
 
 /* =========================================================
    5. HERO
@@ -382,6 +620,11 @@ h1,h2,h3,h4{
   -webkit-backdrop-filter:blur(10px);
   backdrop-filter:blur(10px);
   margin-bottom:18px;
+  animation:eyebrow-in .6s var(--ease-out) both; /* NOVO: leve entrada na carga da página */
+}
+@keyframes eyebrow-in{
+  from{opacity:0; transform:translateY(6px);}
+  to{opacity:1; transform:translateY(0);}
 }
 
 .hero-title{
@@ -408,7 +651,6 @@ h1,h2,h3,h4{
   margin-bottom:28px;
 }
 
-/* Busca — vidro fosco autêntico */
 .hero-search{
   display:flex;
   align-items:center;
@@ -429,7 +671,8 @@ h1,h2,h3,h4{
   border-color:var(--accent-volt);
   box-shadow:var(--shadow-md), 0 0 0 3px rgba(0,255,163,.16);
 }
-.search-icon{color:var(--text-muted);flex-shrink:0;}
+.search-icon{color:var(--text-muted);flex-shrink:0;transition:color var(--t-fast);}
+.hero-search:focus-within .search-icon{color:var(--accent-volt);} /* NOVO */
 .hero-search input{
   flex:1 1 auto;
   min-width:0;
@@ -440,9 +683,30 @@ h1,h2,h3,h4{
   font-size:.95rem;
   padding:10px 4px;
 }
-.hero-search input:focus{outline:none;} /* seguro: foco visível fica no wrapper (:focus-within) */
+.hero-search input:focus{outline:none;}
 .hero-search input::placeholder{color:var(--text-muted);}
 .hero-search .btn{width:100%;justify-content:center;}
+
+/* NOVO: sugestões de busca rápida abaixo do input (chips) */
+.search-suggestions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:-20px 0 28px;
+}
+.search-suggestions button{
+  font-size:.78rem;
+  color:var(--text-muted);
+  padding:5px 12px;
+  border-radius:var(--radius-pill);
+  border:1px solid var(--glass-border);
+  transition:all var(--t-fast);
+}
+.search-suggestions button:hover{
+  color:var(--accent-volt);
+  border-color:var(--accent-volt);
+  background:var(--accent-volt-soft);
+}
 
 .hero-stats{
   display:flex;
@@ -489,10 +753,18 @@ h1,h2,h3,h4{
 }
 .pill:hover{border-color:var(--accent-volt);color:var(--text-primary);}
 .pill.is-active{
-  background:var(--accent-volt);
+  background:var(--grad-volt);
   border-color:var(--accent-volt);
   color:#04140E;
   box-shadow:0 8px 20px -8px rgba(0,255,163,.5);
+}
+
+/* NOVO: contador de resultados dentro do pill ativo, ex. "Restaurantes (12)" */
+.pill .pill-count{
+  opacity:.75;
+  margin-left:4px;
+  font-family:var(--font-mono);
+  font-size:.75rem;
 }
 
 /* =========================================================
@@ -532,6 +804,17 @@ h1,h2,h3,h4{
   padding:56px 0;
   font-size:1rem;
 }
+.empty-state-icon{ /* NOVO: opcional, ícone acima do texto de estado vazio */
+  width:56px;height:56px;
+  margin:0 auto 16px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:var(--glass-bg-soft);
+  border:1px solid var(--glass-border);
+  color:var(--text-faint);
+  font-size:1.4rem;
+}
 
 .coupon-card{
   position:relative;
@@ -545,30 +828,54 @@ h1,h2,h3,h4{
   transition:transform var(--t-med), box-shadow var(--t-med), border-color var(--t-med);
   animation:card-in .5s var(--ease-out) both;
 }
-/* Reflexo de vidro no topo do card — reforça a leitura de "fosco/premium" */
 .coupon-card::before{
   content:"";
   position:absolute;
   inset:0;
   border-radius:inherit;
-  background:linear-gradient(180deg, rgba(255,255,255,.06), transparent 45%);
+  background:linear-gradient(180deg, var(--glass-highlight), transparent 45%);
   pointer-events:none;
 }
+/* NOVO: brilho diagonal que "varre" o card no hover, reforçando a sensação premium/glass */
+.coupon-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(115deg, transparent 20%, rgba(255,255,255,.06) 35%, transparent 50%);
+  background-size:250% 250%;
+  background-position:120% 0;
+  transition:background-position .7s var(--ease-out);
+  pointer-events:none;
+}
+.coupon-card:hover::after{background-position:-20% 0;}
+
 .coupon-card:hover{
   transform:translateY(-4px) scale(1.005);
   border-color:var(--glass-border-strong);
-  box-shadow:var(--shadow-md), var(--shadow-glow-volt);
+  box-shadow:var(--shadow-lg), var(--shadow-glow-volt);
 }
 @keyframes card-in{
   from{opacity:0; transform:translateY(10px);}
   to{opacity:1; transform:translateY(0);}
 }
 
-/* Cupom vencido (classe aplicada via JS) */
+/* NOVO: escalona a entrada dos cards quando o JS aplica --i (nth) via style inline, ex. style="--i:2" */
+.coupon-card{animation-delay:calc(var(--i, 0) * 60ms);}
+
 .coupon-card.expired{
   opacity:.55;
   filter:grayscale(1);
   pointer-events:none;
+}
+
+/* NOVO: variante de destaque (ex. cupom patrocinado / em alta) com contorno de gradiente */
+.coupon-card.is-featured{
+  border-color:transparent;
+  background:
+    linear-gradient(var(--glass-bg), var(--glass-bg)) padding-box,
+    var(--grad-brand-text) border-box;
+  border:1px solid transparent;
 }
 
 .coupon-top{
@@ -576,7 +883,7 @@ h1,h2,h3,h4{
   display:flex;
   flex-direction:column;
   gap:14px;
-  position:relative; /* acima do reflexo de vidro (::before) */
+  position:relative;
 }
 .coupon-store-row{
   display:flex;
@@ -612,6 +919,19 @@ h1,h2,h3,h4{
 }
 .coupon-badge.hot{background:rgba(255,77,109,.15);color:var(--accent-hot);box-shadow:0 0 0 1px rgba(255,77,109,.2) inset;}
 .coupon-badge.new{background:rgba(0,255,163,.15);color:var(--accent-volt);box-shadow:0 0 0 1px rgba(0,255,163,.2) inset;}
+.coupon-badge.premium{background:rgba(139,124,255,.16);color:var(--accent-violet);box-shadow:0 0 0 1px rgba(139,124,255,.25) inset;} /* NOVO */
+
+/* NOVO: badge de urgência com pulso, para cupons expirando em breve (ex. classe aplicada via JS) */
+.coupon-badge.urgent{
+  background:rgba(255,210,63,.16);
+  color:var(--accent-flash);
+  box-shadow:0 0 0 1px rgba(255,210,63,.25) inset;
+  animation:badge-pulse 1.8s ease-in-out infinite;
+}
+@keyframes badge-pulse{
+  0%,100%{opacity:1;}
+  50%{opacity:.55;}
+}
 
 .coupon-discount{
   font-family:var(--font-display);
@@ -632,9 +952,28 @@ h1,h2,h3,h4{
   font-size:.74rem;
   color:var(--text-faint);
   font-family:var(--font-mono);
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.coupon-expiry.is-urgent{color:var(--accent-flash);} /* NOVO */
+
+/* NOVO: linha de avaliação / usos recentes, para reforçar prova social */
+.coupon-meta{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:.74rem;
+  color:var(--text-faint);
+}
+.coupon-meta .rating{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  color:var(--accent-flash);
 }
 
-/* Costura perfurada — visual de cupom físico */
+/* Costura perfurada */
 .coupon-seam{
   position:relative;
   height:0;
@@ -677,6 +1016,7 @@ h1,h2,h3,h4{
   border-radius:var(--radius-sm);
   padding:12px 10px;
   color:var(--text-primary);
+  transition:border-color var(--t-fast), background var(--t-fast); /* NOVO */
 }
 .coupon-copy{
   flex-shrink:0;
@@ -691,7 +1031,24 @@ h1,h2,h3,h4{
   transition:transform var(--t-fast), background var(--t-fast);
 }
 .coupon-copy:hover{transform:scale(1.03);}
-.coupon-copy.is-copied{background:var(--accent-flash);}
+.coupon-copy:active{transform:scale(.96);} /* NOVO */
+.coupon-copy.is-copied{
+  background:var(--accent-flash);
+  animation:copy-pop .35s var(--ease-spring); /* NOVO */
+}
+@keyframes copy-pop{
+  0%{transform:scale(1);}
+  40%{transform:scale(1.12);}
+  100%{transform:scale(1);}
+}
+
+/* NOVO: favoritar cupom — posicionado no canto do card */
+.coupon-fav{
+  position:absolute;
+  top:18px;
+  right:18px;
+  z-index:2;
+}
 
 /* =========================================================
    8. COMO FUNCIONA
@@ -706,6 +1063,7 @@ h1,h2,h3,h4{
   display:grid;
   grid-template-columns:1fr;
   gap:20px;
+  position:relative;
 }
 .how-step{
   position:relative;
@@ -716,19 +1074,20 @@ h1,h2,h3,h4{
   overflow:hidden;
   -webkit-backdrop-filter:blur(14px);
   backdrop-filter:blur(14px);
-  transition:transform var(--t-med), box-shadow var(--t-med);
+  transition:transform var(--t-med), box-shadow var(--t-med), border-color var(--t-med);
 }
 .how-step::before{
   content:"";
   position:absolute;
   top:0;left:0;right:0;
   height:3px;
-  background:linear-gradient(90deg, var(--accent-volt), var(--accent-flash));
+  background:var(--grad-brand-text);
   opacity:.75;
 }
 .how-step:hover{
   transform:translateY(-3px);
   box-shadow:var(--shadow-md);
+  border-color:var(--glass-border-strong); /* NOVO */
 }
 .how-num{
   display:block;
@@ -750,7 +1109,7 @@ h1,h2,h3,h4{
 .cta{padding:64px 0;}
 .cta-card{
   position:relative;
-  isolation:isolate; /* stacking context próprio: evita conflitos de z-index com os blobs decorativos */
+  isolation:isolate;
   background:linear-gradient(135deg, var(--glass-bg-strong), var(--bg-surface-2));
   border:1px solid var(--glass-border-strong);
   border-radius:var(--radius-lg);
@@ -789,7 +1148,6 @@ h1,h2,h3,h4{
 .cta-inner{position:relative;width:100%;}
 .cta-card .btn{width:100%;justify-content:center;}
 
-/* Ponto focal — pulso sutil de "respiração" no botão do WhatsApp */
 .cta-card a#whatsappBtn{
   position:relative;
   z-index:5;
@@ -804,7 +1162,53 @@ h1,h2,h3,h4{
 }
 
 /* =========================================================
-   10. FOOTER
+   10. NEWSLETTER (NOVO — opcional, use se desejar antes do footer)
+   ========================================================= */
+.newsletter{
+  padding:56px 0;
+  text-align:center;
+}
+.newsletter h2{
+  font-size:clamp(1.3rem, 4vw, 1.8rem);
+  margin-bottom:8px;
+}
+.newsletter p{
+  color:var(--text-muted);
+  margin-bottom:22px;
+}
+.newsletter-form{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  max-width:440px;
+  margin:0 auto;
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border-strong);
+  border-radius:var(--radius-pill);
+  padding:8px;
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+  box-shadow:var(--shadow-sm);
+}
+.newsletter-form input{
+  flex:1 1 auto;
+  background:none;
+  border:none;
+  color:var(--text-primary);
+  padding:12px 16px;
+  font-size:.92rem;
+}
+.newsletter-form input::placeholder{color:var(--text-muted);}
+.newsletter-form input:focus{outline:none;}
+.newsletter-form .btn{flex-shrink:0;}
+.newsletter-note{
+  margin-top:12px;
+  font-size:.74rem;
+  color:var(--text-faint);
+}
+
+/* =========================================================
+   11. FOOTER
    ========================================================= */
 .footer{
   position:relative;
@@ -833,10 +1237,32 @@ h1,h2,h3,h4{
   max-width:280px;
 }
 
-/* Logo no rodapé — um pouco maior que no header para reforçar marca */
 .footer-brand .logo img{
   height:44px;
   max-width:200px;
+}
+
+/* NOVO: ícones sociais no rodapé */
+.footer-social{
+  display:flex;
+  gap:10px;
+  margin-top:18px;
+}
+.footer-social a{
+  width:36px;height:36px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:var(--glass-bg-soft);
+  border:1px solid var(--glass-border);
+  color:var(--text-muted);
+  transition:all var(--t-fast);
+}
+.footer-social a:hover{
+  color:var(--accent-volt);
+  border-color:var(--accent-volt);
+  background:var(--accent-volt-soft);
+  transform:translateY(-2px);
 }
 
 .footer-col h4{
@@ -868,7 +1294,7 @@ h1,h2,h3,h4{
 .footer-disclaimer{max-width:100%;text-align:left;}
 
 /* =========================================================
-   11. BACK TO TOP / TOAST
+   12. BACK TO TOP / TOAST
    ========================================================= */
 .back-to-top{
   position:fixed;
@@ -876,7 +1302,7 @@ h1,h2,h3,h4{
   bottom:18px;
   width:46px;height:46px;
   border-radius:50%;
-  background:var(--accent-volt);
+  background:var(--grad-volt);
   color:#04140E;
   font-size:1.1rem;
   display:grid;
@@ -885,10 +1311,11 @@ h1,h2,h3,h4{
   opacity:0;
   pointer-events:none;
   transform:translateY(10px);
-  transition:opacity var(--t-fast), transform var(--t-fast);
+  transition:opacity var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
   cursor:pointer;
   z-index:90;
 }
+.back-to-top:hover{box-shadow:0 14px 30px -6px rgba(0,255,163,.6);} /* NOVO */
 .back-to-top.is-visible{opacity:1;pointer-events:auto;transform:translateY(0);}
 
 .toast{
@@ -928,8 +1355,45 @@ h1,h2,h3,h4{
   flex-shrink:0;
 }
 
+/* NOVO: variantes de toast — aplique junto com .toast, ex. class="toast is-visible is-error" */
+.toast.is-error::before{content:"!";background:var(--accent-hot);color:#2A0007;}
+.toast.is-warning::before{content:"!";background:var(--accent-flash);color:#1A1200;}
+.toast.is-info::before{content:"i";background:var(--accent-violet);color:#0E0A2A;}
+
 /* =========================================================
-   12. MEDIA QUERIES (mobile-first: escalando para cima)
+   13. ESTADOS ESPECIAIS
+   ========================================================= */
+
+/* NOVO: contraste elevado — reforça bordas para quem usa "aumentar contraste" no SO */
+@media (prefers-contrast: more){
+  :root{
+    --glass-border:rgba(255,255,255,.22);
+    --glass-border-strong:rgba(255,255,255,.35);
+    --text-muted:#A7AEBB;
+  }
+  .coupon-card, .how-step, .cta-card, .hero-search{border-width:1.5px;}
+}
+
+/* NOVO: impressão — remove decorações pesadas e efeitos de vidro que não fazem sentido no papel */
+@media print{
+  .header, .back-to-top, .toast, .nav-toggle, .scan-line, .grid-dots{display:none !important;}
+  body{background:#fff;color:#111;}
+  .coupon-card{
+    background:#fff;
+    border:1px solid #ccc;
+    box-shadow:none;
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+  .coupon-discount, .logo-accent{
+    -webkit-text-fill-color:initial;
+    background:none;
+    color:#111 !important;
+  }
+}
+
+/* =========================================================
+   14. MEDIA QUERIES (mobile-first: escalando para cima)
    ========================================================= */
 
 /* ---- Tablet (≥ 600px) ---- */
@@ -940,6 +1404,7 @@ h1,h2,h3,h4{
   .cta-card .btn{width:auto;}
   .footer-bottom{flex-direction:row;justify-content:space-between;align-items:center;}
   .footer-disclaimer{text-align:right;max-width:420px;}
+  .newsletter-form{flex-direction:row;} /* NOVO */
 }
 
 /* ---- Desktop (≥ 860px) ---- */
@@ -961,6 +1426,17 @@ h1,h2,h3,h4{
   .coupon-bottom{flex-wrap:nowrap;}
 
   .how-grid{grid-template-columns:repeat(3, 1fr);gap:30px;}
+  /* NOVO: linha conectando as etapas, reforça a ideia de "passo a passo" no desktop */
+  .how-grid::before{
+    content:"";
+    position:absolute;
+    top:20px;
+    left:16.5%;
+    right:16.5%;
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--glass-border-strong) 15%, var(--glass-border-strong) 85%, transparent);
+    z-index:0;
+  }
 
   .footer-inner{grid-template-columns:2fr 1fr 1fr;gap:40px;}
   .footer-brand .logo img{height:48px;}
