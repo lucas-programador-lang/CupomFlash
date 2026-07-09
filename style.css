@@ -1501,36 +1501,28 @@ strong{font-weight:700;color:var(--text-primary);} /* NOVO: garante contraste em
 
 /* --- CORREÇÃO DE SOBREPOSIÇÃO: TAGS VS FAVORITOS --- */
 
-/* 1. Garante que o card seja o container de posicionamento */
+/* 1. Garante que o card seja o contexto de posicionamento */
 .coupon-card {
-    position: relative !important;
+  position: relative; /* Isso é fundamental para que o botão fique preso ao card */
+  /* ... resto das suas configurações ... */
 }
 
-/* 2. Área das tags: posicionada no topo esquerdo */
-.coupon-tags {
-    position: absolute !important;
-    top: 12px !important;
-    left: 12px !important;
-    z-index: 5 !important;
-    /* O padding-right garante que o texto das tags não invada o espaço do coração */
-    padding-right: 40px !important; 
-    pointer-events: none; 
+/* 2. Posiciona o botão de favorito no canto superior direito */
+.coupon-fav {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 10; /* Garante que ele fique acima de qualquer outra coisa */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
 }
 
-/* 3. Botão do Coração: posicionado no topo direito com z-index alto */
-.coupon-favorite {
-    position: absolute !important;
-    top: 10px !important;
-    right: 10px !important;
-    z-index: 10 !important; /* Sempre acima das tags */
-    cursor: pointer;
-    background: transparent;
-    border: none;
-    font-size: 20px;
-    padding: 5px;
-    transition: transform 0.2s;
-}
-
-.coupon-favorite:hover {
-    transform: scale(1.2);
+/* 3. Garante que as badges (Novo/Hot) não cubram o botão */
+.coupon-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px; /* Coloquei a badge na esquerda para não bater com o botão na direita */
+  z-index: 5;
 }
