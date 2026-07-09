@@ -462,17 +462,15 @@ if (backToTop) {
    11) WHATSAPP — configuração do link do canal
 ------------------------------------------------------------ */
 if (whatsappBtn) {
-  // TODO: troque SEU_LINK_AQUI pelo link real do canal antes de publicar
-  const linkConfigurado = "https://whatsapp.com/channel/SEU_LINK_AQUI"; 
-  
-  whatsappBtn.href = linkConfigurado;
+  // Link oficial configurado:
+  whatsappBtn.href = "https://chat.whatsapp.com/GDV52fYNibR2i9KQHPldKH?s=sw&p=a&ilr=1";
   whatsappBtn.target = "_blank";
   whatsappBtn.rel = "noopener noreferrer";
 
   whatsappBtn.addEventListener("click", function (e) {
+    // Agora que o link é real, esta checagem não disparará mais o aviso
     if (this.href.includes("SEU_LINK_AQUI")) {
       e.preventDefault();
-      // Em vez de alert(), usamos nosso sistema de toast elegante:
       showToast("⚠️ Link do canal do WhatsApp ainda não foi configurado!", "warning");
     }
   });
