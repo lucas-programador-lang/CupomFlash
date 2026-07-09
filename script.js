@@ -42,24 +42,25 @@ function badgeLabel(tag){
   return "";
 }
 
-function renderCoupons(list){
+function renderCoupons(list) {
   grid.innerHTML = "";
+  const hoje = new Date(); // Data atual
 
-  if(list.length === 0){
+  if (list.length === 0) {
     emptyState.hidden = false;
   } else {
     emptyState.hidden = true;
   }
 
-  resultCount.textContent = list.length
-    ? `${list.length} cupom${list.length > 1 ? "s" : ""} encontrado${list.length > 1 ? "s" : ""}`
-    : "";
-
   list.forEach((c, i) => {
-    const card = document.createElement("article");
-    card.className = "coupon-card";
-    card.style.animationDelay = `${Math.min(i, 8) * 0.05}s`;
+    // Verifica expiração: se a data de hoje for maior que a validUntil
+    const dataExpiracao = new Date(c.validUntil);
+    const expirado = hoje > dataExpiracao;
 
+    const card = document.createElement("article");
+    // Adiciona a classe 'expired' se estiver vencido para você estilizar no CSS
+    card.className = expirado ? "coupon-card expired" : "coupon-card";
+    
     card.innerHTML = `
       <div class="coupon-top">
         <div class="coupon-store-row">
@@ -67,17 +68,17 @@ function renderCoupons(list){
             <span class="coupon-store-icon">${c.icon}</span>
             ${c.store}
           </div>
-          ${c.tag ? `<span class="coupon-badge ${c.tag}">${badgeLabel(c.tag)}</span>` : ""}
+          ${c.tag && !expirado ? `<span class="coupon-badge ${c.tag}">${badgeLabel(c.tag)}</span>` : ""}
         </div>
         <div class="coupon-discount">${c.discount}</div>
         <p class="coupon-desc">${c.desc}</p>
-        <span class="coupon-expiry">${c.expiry}</span>
+        <span class="coupon-expiry">${expirado ? "Cupom Expirado" : c.expiry}</span>
       </div>
       <div class="coupon-seam"></div>
       <div class="coupon-bottom">
         <div class="coupon-code">${c.code}</div>
-        <button class="coupon-copy" data-code="${c.code}" aria-label="Copiar código ${c.code}" title="Copiar código">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="2"/></svg>
+        <button class="coupon-copy" ${expirado ? "disabled" : ""} data-code="${c.code}">
+          ${expirado ? "Vencido" : "Copiar"}
         </button>
       </div>
     `;
