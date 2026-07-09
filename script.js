@@ -262,7 +262,14 @@ backToTop.addEventListener("click", () => {
 /* -----------------------------------------------------------
    8) WHATSAPP — troque o número/link do canal aqui
 ------------------------------------------------------------ */
-document.getElementById("whatsappBtn").href = "https://whatsapp.com/channel/SEU_LINK_AQUI";
+/* -----------------------------------------------------------
+   8) WHATSAPP — substitua o link abaixo pelo link do seu canal
+------------------------------------------------------------ */
+const whatsappBtn = document.getElementById("whatsappBtn");
+if (whatsappBtn) {
+    whatsappBtn.href = "COLE_O_SEU_LINK_AQUI"; // <--- COLE O LINK DO SEU CANAL AQUI
+    whatsappBtn.target = "_blank"; // Garante que abra em outra aba
+}
 
 /* -----------------------------------------------------------
    9) ANO NO RODAPÉ + RENDER INICIAL
