@@ -1496,3 +1496,34 @@ strong{font-weight:700;color:var(--text-primary);} /* NOVO: garante contraste em
 .pill.is-active svg {
   opacity: 1;
 }
+
+/* --- Ajuste de sobreposição (Favoritos vs Tags) --- */
+
+/* 1. Garante que o card seja a referência de posição */
+.coupon-card {
+    position: relative !important;
+}
+
+/* 2. Área das tags: posicionada no topo esquerdo com espaço livre à direita */
+.coupon-tags {
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    z-index: 5 !important;
+    /* O padding-right força o texto da tag a parar antes do coração */
+    padding-right: 45px !important; 
+    pointer-events: none; 
+}
+
+/* 3. Botão do Coração: posicionado no topo direito com z-index maior */
+.coupon-favorite {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 10 !important; /* Maior que o das tags, fica por cima */
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    padding: 5px;
+}
