@@ -4,21 +4,17 @@
     "icon": "⚠️",
     "category": "moda",
     "discount": "50% OFF",
-    "desc": "Este cupom deve aparecer cinza e desativado.",
-    "code": "VENCIDO123",
-    "expiry": "Válido até 01/01/2026",
-    "validUntil": "2026-01-01",
-    "tag": "new"
+    "desc": "Este deve ficar cinza.",
+    "code": "TESTE1",
+    "validUntil": "2025-01-01"
   },
   {
-    "store": "Teste Ativo",
+    "store": "Loja Teste",
     "icon": "🚀",
     "category": "eletronicos",
     "discount": "10% OFF",
-    "desc": "Este cupom deve aparecer normal e funcional.",
-    "code": "ATIVO2026",
-    "expiry": "Válido até 31/12/2026",
-    "validUntil": "2026-12-31",
-    "tag": "hot"
+    "desc": "Este deve ficar normal.",
+    "code": "TESTE2",
+    "validUntil": "2026-12-31"
   }
 ]
