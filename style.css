@@ -861,7 +861,7 @@ ul{list-style:none;}
 
 /* Ajuste de tamanho da logo */
 .logo img {
-  height: 70px;      /* Ajuste a altura conforme preferir (ex: 35px a 50px) */
+  height: 80px;      /* Ajuste a altura conforme preferir (ex: 35px a 50px) */
   width: auto;       /* Mantém a proporção da imagem */
   display: block;    /* Remove espaços indesejados abaixo da imagem */
   transition: opacity 0.3s ease; /* Efeito suave ao passar o mouse */
