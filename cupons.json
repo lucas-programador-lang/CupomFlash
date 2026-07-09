@@ -1,0 +1,18 @@
+[
+  {
+    "loja": "Magazine Luiza",
+    "titulo_produto": "Smartphone Galaxy S24 Ultra 512GB 5G",
+    "cupom_codigo": "GALAXY50",
+    "desconto_tag": "R$ 50 OFF",
+    "imagem_url": "https://unsplash.com",
+    "link_afiliado": "SEU_LINK_DE_AFILIADO_AQUI"
+  },
+  {
+    "loja": "Amazon",
+    "titulo_produto": "Fone de Ouvido Bluetooth Anker",
+    "cupom_codigo": "FONE10",
+    "desconto_tag": "10% OFF",
+    "imagem_url": "https://unsplash.com",
+    "link_afiliado": "SEU_LINK_DE_AFILIADO_AQUI"
+  }
+]
