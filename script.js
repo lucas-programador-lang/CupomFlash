@@ -1,44 +1,166 @@
 /* =========================================================
-   CupomFlash — script.js
-   - Dados dos cupons (edite o array COUPONS para adicionar/remover)
-   - Renderização dos cards, filtros por categoria e busca
-   - Copiar código, menu mobile, contador animado, scroll to top
+   CupomFlash — script.js  (v2 · revisado + integrado ao novo CSS)
+   - Carrega os cupons de data.json
+   - Renderiza os cards, filtros por categoria e busca
+   - Copiar código, favoritar, menu mobile, contador animado,
+     header com sombra ao rolar, "voltar ao topo", loading e erros
    ========================================================= */
 
 /* -----------------------------------------------------------
-   1) BANCO DE CUPONS
-   Para postar um cupom novo, copie um objeto abaixo e edite os
-   campos. "category" precisa bater com o data-filter dos pills:
-   moda | eletronicos | beleza | casa | alimentacao | viagem
+   0) CONFIGURAÇÃO
 ------------------------------------------------------------ */
-/* =========================================================
-   CupomFlash — script.js (Versão com carregamento via JSON)
-   ========================================================= */
+const CONFIG = {
+  diasParaUrgente: 2,          // a partir de quantos dias antes do vencimento o badge "urgente" aparece
+  skeletonCount: 6,            // quantos cards fantasma mostrar enquanto data.json carrega
+  favoritosKey: "cupomflash:favoritos",
+  ultimaVisitaKey: "cupomflash:ultimaVisita",
+};
 
-/* 1) CARREGAR DADOS DO JSON */
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* -----------------------------------------------------------
+   1) ELEMENTOS (com verificação — nada quebra se algum não existir na página)
+------------------------------------------------------------ */
+const grid = document.getElementById("couponsGrid");
+const emptyState = document.getElementById("emptyState");
+const resultCount = document.getElementById("resultCount");
+const pills = document.querySelectorAll(".pill");
+const searchInput = document.getElementById("searchInput");
+const heroSearchForm = document.getElementById("heroSearch");
+const toast = document.getElementById("toast");
+const navToggle = document.getElementById("navToggle");
+const nav = document.getElementById("nav");
+const navOverlay = document.getElementById("navOverlay"); // NOVO: opcional, combina com .nav-overlay do CSS
+const backToTop = document.getElementById("backToTop");
+const header = document.querySelector(".header"); // NOVO: pra alternar .is-scrolled
+const whatsappBtn = document.getElementById("whatsappBtn");
+
 let COUPONS = [];
+let activeCategory = "todos";
+let toastTimer = null;
 
-async function carregarCupons() {
+/* -----------------------------------------------------------
+   2) UTILITÁRIOS
+------------------------------------------------------------ */
+
+// Escapa texto vindo do data.json antes de jogar no innerHTML.
+// Protege contra HTML/script acidental (ex: um "&" ou "<" digitado sem querer
+// num nome de loja) mesmo sendo um arquivo que só você edita.
+function escapeHTML(str) {
+  if (str === undefined || str === null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// Retorna a data de hoje como "AAAA-MM-DD" no fuso local.
+// Comparar strings ISO (em vez de objetos Date) evita o bug clássico de
+// cupom "expirar" umas horas antes do fim do dia por causa de fuso horário/UTC.
+function hojeISO() {
+  const d = new Date();
+  const ano = d.getFullYear();
+  const mes = String(d.getMonth() + 1).padStart(2, "0");
+  const dia = String(d.getDate()).padStart(2, "0");
+  return `${ano}-${mes}-${dia}`;
+}
+
+function diasAteExpirar(validUntil) {
+  if (!validUntil) return Infinity;
+  const hoje = new Date(hojeISO() + "T00:00:00");
+  const alvo = new Date(validUntil + "T00:00:00");
+  const diffMs = alvo - hoje;
+  return Math.round(diffMs / 86400000);
+}
+
+function estaExpirado(validUntil) {
+  if (!validUntil) return false; // sem data de validade = considerado sempre válido
+  return validUntil < hojeISO(); // comparação de strings ISO, sem cilada de fuso horário
+}
+
+function badgeLabel(tag) {
+  if (tag === "hot") return "🔥 Em alta";
+  if (tag === "new") return "Novo";
+  if (tag === "premium") return "⭐ Premium";
+  return "";
+}
+
+/* NOVO: toast agora aceita um tipo, combinando com as variantes do CSS
+   (.is-error / .is-warning / .is-info). Uso: showToast("texto", "error") */
+function showToast(message, type = "success") {
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.remove("is-error", "is-warning", "is-info");
+  if (type !== "success") toast.classList.add(`is-${type}`);
+  toast.classList.add("is-visible");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("is-visible"), 2200);
+}
+
+/* NOVO: debounce simples pra não refiltrar a cada tecla digitada na busca */
+function debounce(fn, delay = 250) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
+}
+
+/* -----------------------------------------------------------
+   3) FAVORITOS (NOVO — persistido no localStorage)
+------------------------------------------------------------ */
+function getFavoritos() {
   try {
-    const response = await fetch('data.json');
-    COUPONS = await response.json();
-    
-    // ATUALIZAÇÃO AUTOMÁTICA
-    atualizarEstatisticas(COUPONS);
-    
-    renderCoupons(COUPONS);
-  } catch (error) {
-    console.error("Erro ao carregar o arquivo data.json:", error);
+    return new Set(JSON.parse(localStorage.getItem(CONFIG.favoritosKey)) || []);
+  } catch {
+    return new Set();
   }
 }
 
-// Inicia o carregamento
-carregarCupons();
+function salvarFavoritos(set) {
+  localStorage.setItem(CONFIG.favoritosKey, JSON.stringify([...set]));
+}
+
+function idDoCupom(c) {
+  return `${c.store}::${c.code}`;
+}
+
+function toggleFavorito(id) {
+  const favoritos = getFavoritos();
+  const jaFavoritado = favoritos.has(id);
+  jaFavoritado ? favoritos.delete(id) : favoritos.add(id);
+  salvarFavoritos(favoritos);
+  return !jaFavoritado;
+}
+
+/* -----------------------------------------------------------
+   4) CARREGAR DADOS DO JSON
+------------------------------------------------------------ */
+async function carregarCupons() {
+  renderSkeletons(CONFIG.skeletonCount);
+
+  try {
+    const response = await fetch("data.json");
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const dados = await response.json();
+
+    if (!Array.isArray(dados)) throw new Error("data.json não é uma lista de cupons");
+
+    COUPONS = dados;
+    atualizarEstatisticas(COUPONS);
+    applyFilters(); // já respeita categoria/busca ativas em vez de sempre mostrar tudo
+  } catch (error) {
+    console.error("Erro ao carregar o arquivo data.json:", error);
+    renderErro();
+    showToast("Não foi possível carregar os cupons agora.", "error");
+  }
+}
 
 function atualizarEstatisticas(lista) {
-  const hoje = new Date();
-  const ativos = lista.filter(c => new Date(c.validUntil) >= hoje).length;
-  const lojas = new Set(lista.map(c => c.store)).size;
+  const ativos = lista.filter((c) => !estaExpirado(c.validUntil)).length;
+  const lojas = new Set(lista.map((c) => c.store)).size;
 
   const elCoupons = document.getElementById("totalCoupons");
   const elStores = document.getElementById("totalStores");
@@ -53,63 +175,113 @@ function atualizarEstatisticas(lista) {
   }
 }
 
-/* 2) RENDERIZAÇÃO DOS CARDS */
-const grid = document.getElementById("couponsGrid");
-const emptyState = document.getElementById("emptyState");
-const resultCount = document.getElementById("resultCount");
+/* -----------------------------------------------------------
+   5) RENDERIZAÇÃO DOS CARDS
+------------------------------------------------------------ */
 
-function badgeLabel(tag){
-  if(tag === "hot") return "🔥 Em alta";
-  if(tag === "new") return "Novo";
-  return "";
+// NOVO: cards fantasma (skeleton) exibidos enquanto data.json ainda não chegou,
+// usando a classe .skeleton já preparada no CSS.
+function renderSkeletons(qtd) {
+  if (!grid) return;
+  if (emptyState) emptyState.hidden = true;
+  if (resultCount) resultCount.textContent = "Carregando cupons...";
+
+  grid.innerHTML = Array.from({ length: qtd })
+    .map(
+      () => `
+      <article class="coupon-card" aria-hidden="true">
+        <div class="coupon-top">
+          <div class="coupon-store-row">
+            <div class="coupon-store skeleton" style="width:120px;height:20px;border-radius:6px;"></div>
+          </div>
+          <div class="skeleton" style="width:100px;height:32px;border-radius:8px;"></div>
+          <div class="skeleton" style="width:80%;height:14px;border-radius:6px;"></div>
+        </div>
+        <div class="coupon-seam"></div>
+        <div class="coupon-bottom">
+          <div class="skeleton" style="flex:1;height:44px;border-radius:10px;"></div>
+        </div>
+      </article>`
+    )
+    .join("");
 }
 
-/* 2) RENDERIZAÇÃO DOS CARDS (VERSÃO ATUALIZADA) */
-function renderCoupons(list) {
+// NOVO: estado de erro amigável (data.json ausente, corrompido, sem internet etc.)
+function renderErro() {
+  if (!grid) return;
   grid.innerHTML = "";
-  const hoje = new Date(); // Criamos a data atual apenas uma vez para otimizar
-
-  if (list.length === 0) {
+  if (resultCount) resultCount.textContent = "";
+  if (emptyState) {
     emptyState.hidden = false;
-  } else {
-    emptyState.hidden = true;
+    emptyState.textContent = "Não foi possível carregar os cupons. Tente recarregar a página.";
+  }
+}
+
+function renderCoupons(list) {
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  if (emptyState) emptyState.hidden = list.length !== 0;
+
+  if (resultCount) {
+    resultCount.textContent = list.length
+      ? `${list.length} cupom${list.length > 1 ? "s" : ""} encontrado${list.length > 1 ? "s" : ""}`
+      : "Nenhum cupom encontrado";
   }
 
-  resultCount.textContent = list.length
-    ? `${list.length} cupom${list.length > 1 ? "s" : ""} encontrado${list.length > 1 ? "s" : ""}`
-    : "";
+  const favoritos = getFavoritos();
 
   list.forEach((c, i) => {
-    // Lógica de Expiração:
-    // Certifique-se de que no seu data.json cada cupom tenha o campo "validUntil": "AAAA-MM-DD"
-    const dataExpiracao = new Date(c.validUntil);
-    const expirado = hoje > dataExpiracao;
+    const expirado = estaExpirado(c.validUntil);
+    const dias = diasAteExpirar(c.validUntil);
+    const urgente = !expirado && dias <= CONFIG.diasParaUrgente;
+    const favoritado = favoritos.has(idDoCupom(c));
 
     const card = document.createElement("article");
-    
-    // Adicionamos a classe 'expired' se o cupom estiver vencido (para o seu CSS cinza funcionar)
-    card.className = expirado ? "coupon-card expired" : "coupon-card";
-    card.style.animationDelay = `${Math.min(i, 8) * 0.05}s`;
+    card.className = [
+      "coupon-card",
+      expirado ? "expired" : "",
+      c.featured && !expirado ? "is-featured" : "", // NOVO: use "featured": true no data.json para destacar
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    card.style.setProperty("--i", Math.min(i, 8)); // NOVO: alimenta o animation-delay escalonado do CSS
+
+    const badgeTag = urgente ? "urgent" : c.tag;
+    const badgeText = urgente ? "⏳ Expira em breve" : badgeLabel(c.tag);
 
     card.innerHTML = `
+      <button
+        class="coupon-fav btn-icon${favoritado ? " is-active" : ""}"
+        data-id="${escapeHTML(idDoCupom(c))}"
+        aria-pressed="${favoritado}"
+        aria-label="${favoritado ? "Remover dos favoritos" : "Adicionar aos favoritos"}"
+        title="Favoritar"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="${favoritado ? "currentColor" : "none"}">
+          <path d="M12 21s-7.5-4.6-10-9.1C.5 8.4 2.4 4.5 6.2 4.1c2.1-.2 3.9 1 5.8 3 1.9-2 3.7-3.2 5.8-3 3.8.4 5.7 4.3 4.2 7.8C19.5 16.4 12 21 12 21z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
       <div class="coupon-top">
         <div class="coupon-store-row">
           <div class="coupon-store">
-            <span class="coupon-store-icon">${c.icon}</span>
-            ${c.store}
+            <span class="coupon-store-icon">${escapeHTML(c.icon)}</span>
+            ${escapeHTML(c.store)}
           </div>
-          ${c.tag && !expirado ? `<span class="coupon-badge ${c.tag}">${badgeLabel(c.tag)}</span>` : ""}
+          ${badgeTag && !expirado ? `<span class="coupon-badge ${escapeHTML(badgeTag)}">${badgeText}</span>` : ""}
         </div>
-        <div class="coupon-discount">${c.discount}</div>
-        <p class="coupon-desc">${c.desc}</p>
-        <span class="coupon-expiry">${expirado ? "Expirado" : c.expiry}</span>
+        <div class="coupon-discount">${escapeHTML(c.discount)}</div>
+        <p class="coupon-desc">${escapeHTML(c.desc)}</p>
+        <span class="coupon-expiry${urgente ? " is-urgent" : ""}">${expirado ? "Expirado" : escapeHTML(c.expiry)}</span>
       </div>
 
       <div class="coupon-seam"></div>
 
       <div class="coupon-bottom">
-        <div class="coupon-code">${c.code}</div>
-        <button class="coupon-copy" ${expirado ? "disabled" : ""} data-code="${c.code}" aria-label="Copiar código" title="Copiar código">
+        <div class="coupon-code">${escapeHTML(c.code)}</div>
+        <button class="coupon-copy" ${expirado ? "disabled" : ""} data-code="${escapeHTML(c.code)}" aria-label="Copiar código" title="Copiar código">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="2"/></svg>
         </button>
       </div>
@@ -117,24 +289,20 @@ function renderCoupons(list) {
     grid.appendChild(card);
   });
 }
-/* 3) FILTROS, BUSCA, COPIAR, MENU, CONTADOR E TOPO (O restante do código permanece igual) */
-// [Mantenha aqui as seções 3, 4, 5, 6 e 7 do seu script original]
 
 /* -----------------------------------------------------------
-   3) FILTROS + BUSCA
+   6) FILTROS + BUSCA
 ------------------------------------------------------------ */
-const pills = document.querySelectorAll(".pill");
-const searchInput = document.getElementById("searchInput");
-const heroSearchForm = document.getElementById("heroSearch");
-
-let activeCategory = "todos";
-
-function applyFilters(){
+function applyFilters() {
+  if (!searchInput) return;
   const term = searchInput.value.trim().toLowerCase();
 
-  const filtered = COUPONS.filter(c => {
-    const matchesCategory = activeCategory === "todos" || c.category === activeCategory;
-    const matchesTerm = !term ||
+  const filtered = COUPONS.filter((c) => {
+    const matchesCategory =
+      activeCategory === "todos" ||
+      (activeCategory === "favoritos" ? getFavoritos().has(idDoCupom(c)) : c.category === activeCategory); // NOVO: suporta um pill opcional data-filter="favoritos"
+    const matchesTerm =
+      !term ||
       c.store.toLowerCase().includes(term) ||
       c.desc.toLowerCase().includes(term) ||
       c.discount.toLowerCase().includes(term);
@@ -144,174 +312,182 @@ function applyFilters(){
   renderCoupons(filtered);
 }
 
-pills.forEach(pill => {
+const applyFiltersDebounced = debounce(applyFilters, 200);
+
+pills.forEach((pill) => {
   pill.addEventListener("click", () => {
-    pills.forEach(p => p.classList.remove("is-active"));
+    pills.forEach((p) => p.classList.remove("is-active"));
     pill.classList.add("is-active");
     activeCategory = pill.dataset.filter;
     applyFilters();
   });
 });
 
-heroSearchForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  document.getElementById("cupons").scrollIntoView({ behavior: "smooth" });
-  applyFilters();
-});
-
-searchInput.addEventListener("input", applyFilters);
-
-/* -----------------------------------------------------------
-   4) COPIAR CÓDIGO (delegação de evento, funciona pros cards
-      renderizados dinamicamente)
------------------------------------------------------------- */
-const toast = document.getElementById("toast");
-let toastTimer = null;
-
-function showToast(message){
-  toast.textContent = message;
-  toast.classList.add("is-visible");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("is-visible"), 2200);
+if (heroSearchForm) {
+  heroSearchForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    document.getElementById("cupons")?.scrollIntoView({ behavior: "smooth" });
+    applyFilters();
+  });
 }
 
-grid.addEventListener("click", async (e) => {
-  const btn = e.target.closest(".coupon-copy");
-  if(!btn) return;
+if (searchInput) {
+  searchInput.addEventListener("input", applyFiltersDebounced);
+}
 
-  const code = btn.dataset.code;
+/* -----------------------------------------------------------
+   7) COPIAR CÓDIGO + FAVORITAR (delegação de evento — funciona
+      nos cards renderizados dinamicamente)
+------------------------------------------------------------ */
+if (grid) {
+  grid.addEventListener("click", async (e) => {
+    const copyBtn = e.target.closest(".coupon-copy");
+    const favBtn = e.target.closest(".coupon-fav");
 
-  try{
-    await navigator.clipboard.writeText(code);
-  } catch(err){
-    // fallback para navegadores sem permissão de clipboard
-    const temp = document.createElement("textarea");
-    temp.value = code;
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand("copy");
-    document.body.removeChild(temp);
+    if (copyBtn) {
+      const code = copyBtn.dataset.code;
+      try {
+        await navigator.clipboard.writeText(code);
+      } catch {
+        // fallback para navegadores sem permissão de clipboard
+        const temp = document.createElement("textarea");
+        temp.value = code;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
+      }
+      copyBtn.classList.add("is-copied");
+      showToast(`Código ${code} copiado!`);
+      setTimeout(() => copyBtn.classList.remove("is-copied"), 1200);
+      return;
+    }
+
+    if (favBtn) {
+      const id = favBtn.dataset.id;
+      const agoraFavoritado = toggleFavorito(id);
+      favBtn.classList.toggle("is-active", agoraFavoritado);
+      favBtn.setAttribute("aria-pressed", String(agoraFavoritado));
+      favBtn.setAttribute("aria-label", agoraFavoritado ? "Remover dos favoritos" : "Adicionar aos favoritos");
+      favBtn.querySelector("svg").setAttribute("fill", agoraFavoritado ? "currentColor" : "none");
+      showToast(agoraFavoritado ? "Adicionado aos favoritos" : "Removido dos favoritos", "info");
+      if (activeCategory === "favoritos" && !agoraFavoritado) applyFilters(); // some da lista se estava filtrando só favoritos
+    }
+  });
+}
+
+/* -----------------------------------------------------------
+   8) MENU MOBILE
+------------------------------------------------------------ */
+function fecharMenu() {
+  nav.classList.remove("is-open");
+  navToggle.classList.remove("is-open");
+  navToggle.setAttribute("aria-expanded", "false");
+  navOverlay?.classList.remove("is-visible");
+}
+
+if (navToggle && nav) {
+  navToggle.addEventListener("click", () => {
+    const isOpen = nav.classList.toggle("is-open");
+    navToggle.classList.toggle("is-open", isOpen);
+    navToggle.setAttribute("aria-expanded", String(isOpen));
+    navOverlay?.classList.toggle("is-visible", isOpen); // NOVO: acompanha o overlay opcional do CSS
+  });
+
+  nav.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", fecharMenu);
+  });
+
+  navOverlay?.addEventListener("click", fecharMenu); // NOVO: clicar fora fecha o menu
+}
+
+/* -----------------------------------------------------------
+   9) CONTADOR ANIMADO (hero stats)
+------------------------------------------------------------ */
+function animateCount(el) {
+  const target = parseInt(el.dataset.count, 10);
+  if (Number.isNaN(target)) return;
+
+  if (prefersReducedMotion) { // NOVO: respeita quem prefere menos animação
+    el.textContent = target;
+    return;
   }
 
-  btn.classList.add("is-copied");
-  showToast(`Código ${code} copiado!`);
-  setTimeout(() => btn.classList.remove("is-copied"), 1200);
-});
-
-/* -----------------------------------------------------------
-   5) MENU MOBILE
------------------------------------------------------------- */
-const navToggle = document.getElementById("navToggle");
-const nav = document.getElementById("nav");
-
-navToggle.addEventListener("click", () => {
-  const isOpen = nav.classList.toggle("is-open");
-  navToggle.classList.toggle("is-open", isOpen);
-  navToggle.setAttribute("aria-expanded", String(isOpen));
-});
-
-nav.querySelectorAll("a").forEach(link => {
-  link.addEventListener("click", () => {
-    nav.classList.remove("is-open");
-    navToggle.classList.remove("is-open");
-    navToggle.setAttribute("aria-expanded", "false");
-  });
-});
-
-/* -----------------------------------------------------------
-   6) CONTADOR ANIMADO (hero stats)
------------------------------------------------------------- */
-function animateCount(el){
-  const target = parseInt(el.dataset.count, 10);
   const duration = 1200;
   const start = performance.now();
 
-  function tick(now){
+  function tick(now) {
     const progress = Math.min((now - start) / duration, 1);
     const eased = 1 - Math.pow(1 - progress, 3);
     el.textContent = Math.round(eased * target);
-    if(progress < 1) requestAnimationFrame(tick);
+    if (progress < 1) requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
 }
 
-const statObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if(entry.isIntersecting){
-      animateCount(entry.target);
-      statObserver.unobserve(entry.target);
+const statObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        animateCount(entry.target);
+        statObserver.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.6 }
+);
+
+document.querySelectorAll(".stat-num").forEach((el) => statObserver.observe(el));
+
+/* -----------------------------------------------------------
+   10) HEADER AO ROLAR + BOTÃO VOLTAR AO TOPO
+------------------------------------------------------------ */
+function onScroll() {
+  if (header) header.classList.toggle("is-scrolled", window.scrollY > 10); // NOVO
+  if (backToTop) backToTop.classList.toggle("is-visible", window.scrollY > 500);
+}
+window.addEventListener("scroll", onScroll, { passive: true });
+onScroll(); // aplica o estado correto se a página já carregar rolada (ex: voltar com o navegador)
+
+if (backToTop) {
+  backToTop.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+  });
+}
+
+/* -----------------------------------------------------------
+   11) WHATSAPP — configuração do link do canal
+------------------------------------------------------------ */
+if (whatsappBtn) {
+  // TODO: troque SEU_LINK_AQUI pelo link real do canal antes de publicar
+  whatsappBtn.href = "https://whatsapp.com/channel/SEU_LINK_AQUI";
+  whatsappBtn.target = "_blank";
+  whatsappBtn.rel = "noopener noreferrer";
+
+  whatsappBtn.addEventListener("click", function (e) {
+    if (this.href.includes("SEU_LINK_AQUI")) {
+      e.preventDefault();
+      alert("Link do canal não configurado!");
     }
   });
-}, { threshold: 0.6 });
-
-document.querySelectorAll(".stat-num").forEach(el => statObserver.observe(el));
-
-/* -----------------------------------------------------------
-   7) BOTÃO VOLTAR AO TOPO
------------------------------------------------------------- */
-const backToTop = document.getElementById("backToTop");
-
-window.addEventListener("scroll", () => {
-  backToTop.classList.toggle("is-visible", window.scrollY > 500);
-});
-
-backToTop.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
-
-/* -----------------------------------------------------------
-   8) WHATSAPP — troque o número/link do canal aqui
------------------------------------------------------------- */
-/* -----------------------------------------------------------
-   8) WHATSAPP — substitua o link abaixo pelo link do seu canal
------------------------------------------------------------- */
-// Adicione isso ao final do seu script.js
-/* -----------------------------------------------------------
-   8) WHATSAPP — Configuração do link
------------------------------------------------------------- */
-/* 8) WHATSAPP — Configuração */
-const whatsappBtn = document.getElementById("whatsappBtn");
-
-if (whatsappBtn) {
-    // TODO: troque SEU_LINK_AQUI pelo link real do canal antes de publicar
-    whatsappBtn.href = "https://whatsapp.com/channel/SEU_LINK_AQUI"; // Cole seu link
-    whatsappBtn.target = "_blank";
-    whatsappBtn.rel = "noopener noreferrer";
-    
-    // Adiciona um listener para garantir o clique no desktop
-    whatsappBtn.addEventListener("click", function(e) {
-        // BUGFIX: a checagem original comparava this.href com "#", mas o href
-        // já foi trocado para o placeholder duas linhas acima — essa condição
-        // nunca era verdadeira e o alerta nunca disparava. Agora comparamos
-        // com o próprio placeholder, então o aviso funciona até você trocar o link.
-        if (this.href.includes("SEU_LINK_AQUI")) {
-            e.preventDefault();
-            alert("Link do canal não configurado!");
-        }
-    });
 }
+
 /* -----------------------------------------------------------
-   9) ANO NO RODAPÉ + RENDER INICIAL
+   12) ANO NO RODAPÉ + AVISO DE NOVOS CUPONS + INÍCIO
 ------------------------------------------------------------ */
-document.getElementById("year").textContent = new Date().getFullYear();
+const yearEl = document.getElementById("year");
+if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-// BUGFIX: esta chamada era duplicada — carregarCupons() já chama renderCoupons()
-// assim que data.json termina de carregar. Como fetch() é assíncrono, esta linha
-// rodava ANTES da resposta chegar, com COUPONS ainda vazio ([]), fazendo o site
-// mostrar "Nenhum cupom encontrado" por um instante em toda visita. Removida.
-// renderCoupons(COUPONS);
-
-
-/* 10) AVISO DE NOVO CUPOM (Pop-up simples) */
 function verificarNovoCupom() {
-  const hoje = new Date().toDateString();
-  const ultimaVisita = localStorage.getItem("ultimaVisita");
-
+  const hoje = hojeISO();
+  const ultimaVisita = localStorage.getItem(CONFIG.ultimaVisitaKey);
   if (ultimaVisita !== hoje) {
     showToast("🔥 Temos novos cupons disponíveis hoje!");
-    localStorage.setItem("ultimaVisita", hoje);
+    localStorage.setItem(CONFIG.ultimaVisitaKey, hoje);
   }
 }
-
-// Chame esta função após o carregamento inicial
 verificarNovoCupom();
+
+// Único ponto de carregamento: carregarCupons() já chama applyFilters()/renderCoupons()
+// quando data.json termina de carregar, então não há chamada duplicada aqui.
+carregarCupons();
