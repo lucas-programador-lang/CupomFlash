@@ -1,25 +1,26 @@
 [
   {
-    "store": "Amazon",
-    "icon": "📦",
-    "category": "eletronicos",
+    "store": "Nome da Loja",
+    "code": "CUPOM10",
     "discount": "10% OFF",
-    "desc": "Em todo o site de eletrônicos",
-    "code": "TECH10",
+    "desc": "Desconto em todo o site",
     "expiry": "2026-12-31",
     "validUntil": "2026-12-31",
+    "category": "alimentacao",
     "tag": "new",
+    "icon": "🍔",
     "featured": true
   },
   {
-    "store": "Nike",
-    "icon": "👟",
-    "category": "moda",
-    "discount": "R$ 50 OFF",
-    "desc": "Nas compras acima de R$ 300",
-    "code": "NIKE50",
-    "expiry": "2026-08-15",
-    "validUntil": "2026-08-15",
-    "tag": "hot"
+    "store": "Outra Loja",
+    "code": "FRETEGRATIS",
+    "discount": "Frete Grátis",
+    "desc": "Frete grátis em compras acima de R$100",
+    "expiry": "2026-12-01",
+    "validUntil": "2026-12-01",
+    "category": "viagem",
+    "tag": "hot",
+    "icon": "✈️",
+    "featured": false
   }
 ]
