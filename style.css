@@ -222,6 +222,24 @@ strong{font-weight:700;color:var(--text-primary);} /* NOVO: garante contraste em
 }
 ::-webkit-scrollbar-thumb:hover{background:var(--glass-border-strong);}
 
+/* NOVO: link "pular para o conteúdo" — invisível até receber foco via teclado (Tab) */
+.skip-link{
+  position:absolute;
+  top:-60px;
+  left:12px;
+  z-index:1000;
+  background:var(--accent-volt);
+  color:#04140E;
+  font-weight:700;
+  font-size:.85rem;
+  padding:10px 18px;
+  border-radius:var(--radius-sm);
+  transition:top var(--t-fast);
+}
+.skip-link:focus{
+  top:12px;
+}
+
 /* NOVO: esconde visualmente mas mantém acessível a leitores de tela */
 .sr-only{
   position:absolute;
