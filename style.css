@@ -353,6 +353,12 @@ ul{list-style:none;}
   transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
   animation:card-in .5s ease both;
 }
+/* Visual para cupons vencidos (adicionado automaticamente via JS) */
+.coupon-card.expired {
+  opacity: 0.6;
+  filter: grayscale(1);
+  pointer-events: none; /* Bloqueia cliques no cupom vencido */
+}
 .coupon-card:hover{
   transform:translateY(-4px);
   border-color:var(--border-soft-2);
