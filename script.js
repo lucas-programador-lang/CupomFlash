@@ -266,12 +266,16 @@ backToTop.addEventListener("click", () => {
    8) WHATSAPP — substitua o link abaixo pelo link do seu canal
 ------------------------------------------------------------ */
 // Adicione isso ao final do seu script.js
-const whatsappBtn = document.getElementById("whatsappBtn");
-if (whatsappBtn) {
-    whatsappBtn.href = "COLE_O_LINK_AQUI"; // Substitua aqui
-    whatsappBtn.target = "_blank";
-}
-
+/* -----------------------------------------------------------
+   8) WHATSAPP — Configuração do link
+------------------------------------------------------------ */
+window.addEventListener('DOMContentLoaded', (event) => {
+    const whatsappBtn = document.getElementById("whatsappBtn");
+    if (whatsappBtn) {
+        // COLE O SEU LINK DE CONVITE DO WHATSAPP ABAIXO
+        whatsappBtn.href = "https://whatsapp.com/channel/SEU_LINK_AQUI";
+    }
+});
 /* -----------------------------------------------------------
    9) ANO NO RODAPÉ + RENDER INICIAL
 ------------------------------------------------------------ */
