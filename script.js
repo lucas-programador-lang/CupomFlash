@@ -269,13 +269,22 @@ backToTop.addEventListener("click", () => {
 /* -----------------------------------------------------------
    8) WHATSAPP — Configuração do link
 ------------------------------------------------------------ */
-window.addEventListener('DOMContentLoaded', (event) => {
-    const whatsappBtn = document.getElementById("whatsappBtn");
-    if (whatsappBtn) {
-        // COLE O SEU LINK DE CONVITE DO WHATSAPP ABAIXO
-        whatsappBtn.href = "https://whatsapp.com/channel/SEU_LINK_AQUI";
-    }
-});
+/* 8) WHATSAPP — Configuração */
+const whatsappBtn = document.getElementById("whatsappBtn");
+
+if (whatsappBtn) {
+    whatsappBtn.href = "https://whatsapp.com/channel/SEU_LINK_AQUI"; // Cole seu link
+    whatsappBtn.target = "_blank";
+    whatsappBtn.rel = "noopener noreferrer";
+    
+    // Adiciona um listener para garantir o clique no desktop
+    whatsappBtn.addEventListener("click", function(e) {
+        if (this.href === "#") {
+            e.preventDefault();
+            alert("Link do canal não configurado!");
+        }
+    });
+}
 /* -----------------------------------------------------------
    9) ANO NO RODAPÉ + RENDER INICIAL
 ------------------------------------------------------------ */
