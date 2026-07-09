@@ -1480,3 +1480,19 @@ strong{font-weight:700;color:var(--text-primary);} /* NOVO: garante contraste em
     background-color: #2b2510;  /* Fundo escuro levemente amarelado */
     color: #fff;
 }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Espaço entre o ícone e o texto */
+}
+
+.pill svg {
+  stroke-width: 2; /* Ajusta a espessura da linha do ícone */
+  opacity: 0.8;    /* Leve transparência que fica chique no tema escuro */
+}
+
+/* Garante que o ícone mude de cor junto com o texto quando o botão estiver ativo */
+.pill.is-active svg {
+  opacity: 1;
+}
