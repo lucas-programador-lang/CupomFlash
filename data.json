@@ -2,25 +2,56 @@
   {
     "store": "Amazon",
     "domain": "amazon.com.br",
-    "code": "OFERTA10",
+    "code": "AMAZON10",
     "discount": "10% OFF",
-    "desc": "Desconto em itens selecionados",
+    "desc": "Desconto em livros e eletrônicos",
     "category": "eletronicos",
     "tag": "hot",
-    "expiry": "12/07/2026",
-    "validUntil": "2026-07-30",
-    "featured": true
+    "expiry": "30/12/2026",
+    "validUntil": "2026-12-30"
+  },
+  {
+    "store": "Magalu",
+    "domain": "magazineluiza.com.br",
+    "code": "MAGALU20",
+    "discount": "R$ 20 OFF",
+    "desc": "Cupom para compras acima de R$ 200",
+    "category": "eletronicos",
+    "tag": "new",
+    "expiry": "20/08/2026",
+    "validUntil": "2026-08-20"
+  },
+  {
+    "store": "Nike",
+    "domain": "nike.com.br",
+    "code": "NIKEFIT",
+    "discount": "15% OFF",
+    "desc": "Tênis de corrida selecionados",
+    "category": "moda",
+    "tag": "premium",
+    "expiry": "15/09/2026",
+    "validUntil": "2026-09-15"
+  },
+  {
+    "store": "Ifood",
+    "domain": "ifood.com.br",
+    "code": "IFOOD5",
+    "discount": "R$ 5 OFF",
+    "desc": "Cupom para primeira compra",
+    "category": "delivery",
+    "tag": "hot",
+    "expiry": "05/08/2026",
+    "validUntil": "2026-08-05"
   },
   {
     "store": "Mercado Livre",
     "domain": "mercadolivre.com.br",
-    "code": "TESTEEXPIROU",
-    "discount": "R$ 50 OFF",
-    "desc": "Este cupom deve sumir do site",
-    "category": "geral",
+    "code": "MERCADO10",
+    "discount": "10% OFF",
+    "desc": "Moda e Beleza",
+    "category": "mercado",
     "tag": "new",
-    "expiry": "08/07/2026",
-    "validUntil": "2026-07-08",
-    "featured": false
+    "expiry": "25/12/2026",
+    "validUntil": "2026-12-25"
   }
 ]
