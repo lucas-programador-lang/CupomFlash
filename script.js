@@ -270,7 +270,7 @@ function renderCoupons(list) {
             <span class="coupon-store-icon">${escapeHTML(c.icon)}</span>
             ${escapeHTML(c.store)}
           </div>
-          ${badgeTag && !expirado ? `<span class="coupon-badge ${escapeHTML(badgeTag)}">${badgeText}</span>` : ""}
+          ${badgeTag && badgeText && !expirado ? `<span class="coupon-badge ${escapeHTML(badgeTag)}">${badgeText}</span>` : ""}
         </div>
         <div class="coupon-discount">${escapeHTML(c.discount)}</div>
         <p class="coupon-desc">${escapeHTML(c.desc)}</p>
@@ -294,8 +294,7 @@ function renderCoupons(list) {
    6) FILTROS + BUSCA
 ------------------------------------------------------------ */
 function applyFilters() {
-  if (!searchInput) return;
-  const term = searchInput.value.trim().toLowerCase();
+  const term = searchInput ? searchInput.value.trim().toLowerCase() : "";
 
   const filtered = COUPONS.filter((c) => {
     const matchesCategory =
@@ -303,9 +302,9 @@ function applyFilters() {
       (activeCategory === "favoritos" ? getFavoritos().has(idDoCupom(c)) : c.category === activeCategory); // NOVO: suporta um pill opcional data-filter="favoritos"
     const matchesTerm =
       !term ||
-      c.store.toLowerCase().includes(term) ||
-      c.desc.toLowerCase().includes(term) ||
-      c.discount.toLowerCase().includes(term);
+      (c.store || "").toLowerCase().includes(term) ||
+      (c.desc || "").toLowerCase().includes(term) ||
+      (c.discount || "").toLowerCase().includes(term);
     return matchesCategory && matchesTerm;
   });
 
@@ -455,9 +454,6 @@ if (backToTop) {
   });
 }
 
-/* -----------------------------------------------------------
-   11) WHATSAPP — configuração do link do canal
------------------------------------------------------------- */
 /* -----------------------------------------------------------
    11) WHATSAPP — configuração do link do canal
 ------------------------------------------------------------ */
