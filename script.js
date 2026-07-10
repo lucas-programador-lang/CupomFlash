@@ -254,7 +254,7 @@ function renderCoupons(list) {
 
   const favoritos = getFavoritos();
 
-  list.forEach((c, i) => {
+ list.forEach((c, i) => {
     const expirado = estaExpirado(c.validUntil);
     const dias = diasAteExpirar(c.validUntil);
     const urgente = !expirado && dias <= CONFIG.diasParaUrgente;
@@ -264,16 +264,17 @@ function renderCoupons(list) {
     card.className = [
       "coupon-card",
       expirado ? "expired" : "",
-      c.featured && !expirado ? "is-featured" : "", // NOVO: use "featured": true no data.json para destacar
+      c.featured && !expirado ? "is-featured" : "",
     ]
       .filter(Boolean)
       .join(" ");
 
-    card.style.setProperty("--i", Math.min(i, 8)); // NOVO: alimenta o animation-delay escalonado do CSS
+    card.style.setProperty("--i", Math.min(i, 8));
 
     const badgeTag = urgente ? "urgent" : c.tag;
     const badgeText = urgente ? "⏳ Expira em breve" : badgeLabel(c.tag);
 
+    // ESTE É O BLOCO MODIFICADO:
     card.innerHTML = `
       <button
         class="coupon-fav btn-icon${favoritado ? " is-active" : ""}"
@@ -290,7 +291,12 @@ function renderCoupons(list) {
       <div class="coupon-top">
         <div class="coupon-store-row">
           <div class="coupon-store">
-            <span class="coupon-store-icon">${escapeHTML(c.icon)}</span>
+            <img 
+              src="https://icons.duckduckgo.com/ip3/${c.domain}.ico" 
+              alt="${c.store}" 
+              style="width:20px;height:20px;margin-right:8px;border-radius:4px;vertical-align:middle;background:white;"
+              onerror="this.style.display='none'"
+            >
             ${escapeHTML(c.store)}
           </div>
           ${badgeTag && badgeText && !expirado ? `<span class="coupon-badge ${escapeHTML(badgeTag)}">${badgeText}</span>` : ""}
@@ -311,7 +317,6 @@ function renderCoupons(list) {
     `;
     grid.appendChild(card);
   });
-}
 
 /* -----------------------------------------------------------
    6) FILTROS + BUSCA
