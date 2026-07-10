@@ -90,13 +90,20 @@ function badgeLabel(tag) {
 /* NOVO: toast agora aceita um tipo, combinando com as variantes do CSS
    (.is-error / .is-warning / .is-info). Uso: showToast("texto", "error") */
 function showToast(message, type = "success") {
+  const toast = document.getElementById("toast"); // Garante que busca o elemento no HTML
   if (!toast) return;
+  
   toast.textContent = message;
   toast.classList.remove("is-error", "is-warning", "is-info");
   if (type !== "success") toast.classList.add(`is-${type}`);
+  
+  // Força a animação a reiniciar
+  toast.classList.remove("is-visible");
+  void toast.offsetWidth; // O "truque" do navegador para reiniciar a animação CSS
   toast.classList.add("is-visible");
+  
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("is-visible"), 2200);
+  toastTimer = setTimeout(() => toast.classList.remove("is-visible"), 3000);
 }
 
 /* NOVO: debounce simples pra não refiltrar a cada tecla digitada na busca */
