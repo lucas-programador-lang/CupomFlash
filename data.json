@@ -1,11 +1,15 @@
-{
-  "store": "Samsung",
-  "domain": "samsung.com",
-  "code": "CELULAR10",
-  "discount": "10% OFF",
-  "desc": "Smartphone Galaxy S24 Ultra",
-  "category": "eletronicos",
-  "tag": "hot",
-  "expiry": "30/12/2026",
-  "validUntil": "2026-12-30"
-}
+[
+  { "store": "Loja Antiga", ... },
+  { "store": "Outra Loja", ... },
+  {
+    "store": "Samsung",
+    "domain": "samsung.com",
+    "code": "CELULAR10",
+    "discount": "10% OFF",
+    "desc": "Smartphone Galaxy S24 Ultra",
+    "category": "eletronicos",
+    "tag": "hot",
+    "expiry": "30/12/2026",
+    "validUntil": "2026-12-30"
+  }
+]
