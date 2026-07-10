@@ -138,6 +138,9 @@ function toggleFavorito(id) {
 /* -----------------------------------------------------------
    4) CARREGAR DADOS DO JSON
 ------------------------------------------------------------ */
+/* -----------------------------------------------------------
+   4) CARREGAR DADOS DO JSON (Com Auto-Limpeza)
+------------------------------------------------------------ */
 async function carregarCupons() {
   renderSkeletons(CONFIG.skeletonCount);
 
@@ -148,9 +151,29 @@ async function carregarCupons() {
 
     if (!Array.isArray(dados)) throw new Error("data.json não é uma lista de cupons");
 
-    COUPONS = dados;
+    // 1. O SEGREDO MÁGICO: Filtra os dados originais e guarda APENAS os cupons que NÃO estão expirados.
+    // Assim, cupons vencidos sequer existem para o restante do site.
+    COUPONS = dados.filter(c => !estaExpirado(c.validUntil));
+
+    // 2. LIMPEZA INTELIGENTE DE FAVORITOS:
+    // Pega os favoritos salvos no navegador da pessoa.
+    const favoritos = getFavoritos();
+    let favoritosMudou = false;
+    // Cria uma lista rápida só com os IDs dos cupons que ainda estão vivos hoje
+    const idsAtivos = new Set(COUPONS.map(c => idDoCupom(c)));
+
+    // Varre os favoritos. Se a pessoa favoritou algo que expirou, o site deleta sozinho!
+    for (const fav of favoritos) {
+      if (!idsAtivos.has(fav)) {
+        favoritos.delete(fav);
+        favoritosMudou = true;
+      }
+    }
+    // Salva a lista de favoritos limpa de volta no navegador
+    if (favoritosMudou) salvarFavoritos(favoritos);
+
     atualizarEstatisticas(COUPONS);
-    applyFilters(); // já respeita categoria/busca ativas em vez de sempre mostrar tudo
+    applyFilters(); 
   } catch (error) {
     console.error("Erro ao carregar o arquivo data.json:", error);
     renderErro();
