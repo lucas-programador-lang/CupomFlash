@@ -1,26 +1,26 @@
 [
   {
-    "store": "Nome da Loja",
-    "code": "CUPOM10",
+    "store": "Amazon",
+    "code": "OFERTA10",
     "discount": "10% OFF",
-    "desc": "Desconto em todo o site",
-    "expiry": "2026-12-31",
-    "validUntil": "2026-12-31",
-    "category": "alimentacao",
-    "tag": "new",
-    "icon": "🍔",
-    "featured": true
+    "desc": "Desconto em itens selecionados",
+    "category": "eletronicos",
+    "tag": "hot",
+    "expiry": "12/07/2026",
+    "validUntil": "2026-07-30",
+    "featured": true,
+    "icon": "🛒"
   },
   {
-    "store": "Outra Loja",
-    "code": "FRETEGRATIS",
-    "discount": "Frete Grátis",
-    "desc": "Frete grátis em compras acima de R$100",
-    "expiry": "2026-12-01",
-    "validUntil": "2026-12-01",
-    "category": "viagem",
-    "tag": "hot",
-    "icon": "✈️",
-    "featured": false
+    "store": "Mercado Livre",
+    "code": "TESTEEXPIROU",
+    "discount": "R$ 50 OFF",
+    "desc": "Este cupom deve sumir do site",
+    "category": "geral",
+    "tag": "new",
+    "expiry": "08/07/2026",
+    "validUntil": "2026-07-08",
+    "featured": false,
+    "icon": "📦"
   }
 ]
