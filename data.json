@@ -1,1 +1,23 @@
+[
+  {
+    "store": "Amazon",
+    "domain": "amazon.com.br",
+    "code": "DESCONTO10",
+    "discount": "10% OFF",
+    "desc": "Em todo o site",
+    "validUntil": "2026-12-31",
+    "category": "eletronicos",
+    "tag": "hot"
+  },
+  {
+    "store": "Shopee",
+    "domain": "shopee.com.br",
+    "code": "FRETEGRATIS",
+    "discount": "Frete Grátis",
+    "desc": "Para compras acima de R$ 20",
+    "validUntil": "2026-08-15",
+    "category": "moda",
+    "tag": "new"
+  }
+]
 
