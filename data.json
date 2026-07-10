@@ -18,7 +18,15 @@
     "validUntil": "2026-08-15",
     "category": "moda",
     "tag": "new"
+  },
+  {
+    "store": "TESTE",
+    "domain": "teste.com",
+    "code": "CUPOMTESTE123",
+    "discount": "100% OFF",
+    "desc": "Este é um cupom de teste",
+    "validUntil": "2026-12-31",
+    "category": "teste",
+    "tag": "hot"
   }
 ]
-
-
