@@ -292,7 +292,7 @@ function renderCoupons(list) {
         <div class="coupon-store-row">
           <div class="coupon-store">
             <img 
-              src="https://icons.duckduckgo.com/ip3/${c.domain}.ico" 
+             src="https://icons.duckduckgo.com/ip3/${c.domain || 'placeholder'}.ico" 
               alt="${c.store}" 
               style="width:20px;height:20px;margin-right:8px;border-radius:4px;vertical-align:middle;background:white;"
               onerror="this.style.display='none'"
@@ -317,6 +317,7 @@ function renderCoupons(list) {
     `;
     grid.appendChild(card);
   });
+}
 
 /* -----------------------------------------------------------
    6) FILTROS + BUSCA
