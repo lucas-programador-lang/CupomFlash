@@ -519,3 +519,26 @@ verificarNovoCupom();
 // Único ponto de carregamento: carregarCupons() já chama applyFilters()/renderCoupons()
 // quando data.json termina de carregar, então não há chamada duplicada aqui.
 carregarCupons();
+
+// --- SISTEMA DE ATUALIZAÇÃO AUTOMÁTICA ---
+// Verifica novos cupons a cada 60 segundos
+setInterval(async () => {
+  try {
+    // O "?t=" + Date.now() força o navegador a buscar o arquivo novo no servidor
+    const response = await fetch("data.json?t=" + Date.now());
+    if (!response.ok) return;
+
+    const novosDados = await response.json();
+    
+    // Compara o conteúdo atual com o que acabou de baixar
+    if (JSON.stringify(novosDados) !== JSON.stringify(COUPONS)) {
+      COUPONS = novosDados; // Atualiza a variável global de cupons
+      applyFilters();       // Re-renderiza a grade de cupons na tela
+      
+      // Mostra a notificação para o usuário
+      showToast("✨ Novos cupons foram adicionados!", "info");
+    }
+  } catch (e) {
+    console.error("Erro ao verificar atualizações:", e);
+  }
+}, 60000); // 60000ms = 1 minuto
