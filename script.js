@@ -189,6 +189,7 @@ async function carregarCupons() {
 }
 
 function atualizarEstatisticas(lista) {
+  // Filtra apenas os que não expiraram
   const ativos = lista.filter((c) => !estaExpirado(c.validUntil)).length;
   const lojas = new Set(lista.map((c) => c.store)).size;
 
@@ -530,31 +531,32 @@ carregarCupons();
 // --- SISTEMA DE ATUALIZAÇÃO AUTOMÁTICA ---
 // Verifica novos cupons a cada 60 segundos
 // --- SISTEMA DE ATUALIZAÇÃO AUTOMÁTICA ---
+// --- SISTEMA DE ATUALIZAÇÃO AUTOMÁTICA ---
 setInterval(async () => {
   try {
-    // 1. Busca os dados com um timestamp para evitar o cache do navegador
     const response = await fetch("data.json?t=" + Date.now());
     if (!response.ok) return;
 
     const novosDados = await response.json();
     
-    // 2. Compara se os dados mudaram
+    // Compara se os dados mudaram
     if (JSON.stringify(novosDados) !== JSON.stringify(COUPONS)) {
-      console.log("Mudança detectada! Atualizando cupons...");
+      console.log("Mudança detectada! Atualizando tudo...");
       
-      // 3. Atualiza a lista na memória
       COUPONS = novosDados;
       
-      // 4. Atualiza a tela (sua função de renderização)
+      // 1. Atualiza os cards (para aparecerem/sumirem)
       applyFilters(); 
       
-      // 5. DISPARA A NOTIFICAÇÃO (Aqui estava o segredo!)
+      // 2. Atualiza os números (estatísticas)
+      atualizarEstatisticas(COUPONS);
+      
+      // 3. MANTÉM A SUA NOTIFICAÇÃO
       const toast = document.querySelector('.toast');
       if (toast) {
         toast.textContent = "✨ Novos cupons foram adicionados!";
         toast.classList.add('is-visible');
         
-        // Remove automaticamente após 3 segundos
         setTimeout(() => {
           toast.classList.remove('is-visible');
         }, 3000);
