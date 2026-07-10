@@ -532,19 +532,35 @@ carregarCupons();
 // --- SISTEMA DE ATUALIZAÇÃO AUTOMÁTICA ---
 setInterval(async () => {
   try {
+    // 1. Busca os dados com um timestamp para evitar o cache do navegador
     const response = await fetch("data.json?t=" + Date.now());
     if (!response.ok) return;
 
     const novosDados = await response.json();
     
-    // Convertemos para string para comparar se o conteúdo mudou
+    // 2. Compara se os dados mudaram
     if (JSON.stringify(novosDados) !== JSON.stringify(COUPONS)) {
-      console.log("Mudança detectada! Atualizando tela...");
-      COUPONS = novosDados; // Atualiza a variável global
-      applyFilters();       // Re-renderiza a grade
-      showToast("✨ Novos cupons foram adicionados!", "success"); // Garantimos o tipo "success"
+      console.log("Mudança detectada! Atualizando cupons...");
+      
+      // 3. Atualiza a lista na memória
+      COUPONS = novosDados;
+      
+      // 4. Atualiza a tela (sua função de renderização)
+      applyFilters(); 
+      
+      // 5. DISPARA A NOTIFICAÇÃO (Aqui estava o segredo!)
+      const toast = document.querySelector('.toast');
+      if (toast) {
+        toast.textContent = "✨ Novos cupons foram adicionados!";
+        toast.classList.add('is-visible');
+        
+        // Remove automaticamente após 3 segundos
+        setTimeout(() => {
+          toast.classList.remove('is-visible');
+        }, 3000);
+      }
     }
   } catch (e) {
     console.error("Erro ao verificar atualizações:", e);
   }
-}, 30000); // Mudei para 30 segundos para você testar mais rápido
+}, 30000); // Verifica a cada 30 segundos
