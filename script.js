@@ -522,26 +522,22 @@ carregarCupons();
 
 // --- SISTEMA DE ATUALIZAÇÃO AUTOMÁTICA ---
 // Verifica novos cupons a cada 60 segundos
+// --- SISTEMA DE ATUALIZAÇÃO AUTOMÁTICA ---
 setInterval(async () => {
-   console.log("A verificar atualizações...");
   try {
-    // O "?t=" + Date.now() força o navegador a buscar o arquivo novo no servidor
     const response = await fetch("data.json?t=" + Date.now());
     if (!response.ok) return;
 
     const novosDados = await response.json();
-    console.log("Dados recebidos:", novosDados);
     
-    // Compara o conteúdo atual com o que acabou de baixar
+    // Convertemos para string para comparar se o conteúdo mudou
     if (JSON.stringify(novosDados) !== JSON.stringify(COUPONS)) {
-      console.log("Mudança detectada!");
-      COUPONS = novosDados; // Atualiza a variável global de cupons
-      applyFilters();       // Re-renderiza a grade de cupons na tela
-      
-      // Mostra a notificação para o usuário
-      showToast("✨ Novos cupons foram adicionados!", "info");
+      console.log("Mudança detectada! Atualizando tela...");
+      COUPONS = novosDados; // Atualiza a variável global
+      applyFilters();       // Re-renderiza a grade
+      showToast("✨ Novos cupons foram adicionados!", "success"); // Garantimos o tipo "success"
     }
   } catch (e) {
     console.error("Erro ao verificar atualizações:", e);
   }
-}, 60000); // 60000ms = 1 minuto
+}, 30000); // Mudei para 30 segundos para você testar mais rápido
